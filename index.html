@@ -135,6 +135,36 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--op);outline-off
 .errs ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 14px}
 .errs li{font-weight:600;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .errs s{color:var(--bad);font-size:.85em;margin-left:4px}.errs b{color:var(--ok)}
+/* painel do responsável */
+.consent{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--soft);margin:2px 0 4px}
+.consent input{width:18px;height:18px;margin-top:2px;accent-color:var(--op);flex:none}
+.addf{padding:20px;margin:0 0 18px;max-width:440px}
+.addf h3{margin:0 0 4px;font-size:18px}
+.okmsg{background:var(--opbg);border-radius:12px;padding:12px 16px;margin:0 0 18px;font-weight:600}
+.okmsg code{font:700 15px Manrope,sans-serif;background:var(--bg);padding:1px 6px;border-radius:6px}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;width:100%;text-align:left;padding:14px 16px;border-radius:12px;background:var(--surf);margin-bottom:8px;border:1px solid transparent}
+.srow:hover{border-color:var(--line)}
+.srow b{font-size:16px}
+.srow .where{color:var(--soft);font-size:14px;grid-column:1}
+.srow .cnt{grid-column:2;grid-row:1;text-align:right;font-weight:700;font-size:14px;white-space:nowrap}
+.srow .when{grid-column:2;grid-row:2;text-align:right;color:var(--soft);font-size:13px;white-space:nowrap}
+.empty{color:var(--soft);padding:22px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+.h2{font-size:17px;font-weight:700;margin:30px 0 10px}
+.opgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:10px}
+.opc{background:var(--surf);border-radius:12px;padding:12px 14px}
+.opc .t{display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:8px}
+.opc .t span{color:var(--soft);font-weight:600}
+.opc .bar{height:6px}
+.opc .bar i{background:var(--c)}
+.misses{display:flex;flex-wrap:wrap;gap:8px}
+.miss{background:var(--surf);border-radius:10px;padding:8px 12px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.miss small{color:var(--bad);font-weight:600;margin-left:6px}
+.scroll{overflow-x:auto}
+table.ses{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+.ses th{text-align:left;color:var(--soft);font-weight:600;font-size:13px;padding:8px 10px;border-bottom:1px solid var(--line)}
+.ses td{padding:10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ses td.num,.ses th.num{text-align:right}
+.tagok{color:var(--ok);font-weight:700}.tagno{color:var(--soft)}
 [hidden]{display:none!important}
 @keyframes pop{0%{transform:translateY(6px);opacity:0}100%{transform:none;opacity:1}}
 .pop{animation:pop .16s ease-out}
@@ -160,8 +190,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--op);outline-off
       <label for="lp">Senha</label>
       <input id="lp" type="password" autocomplete="current-password">
       <p class="err" id="lerr" role="alert"></p>
-      <div class="btns left"><button class="btn main" type="submit" id="lin">Entrar</button><button class="btn" type="button" id="signup">Criar conta</button></div>
+      <div class="btns left"><button class="btn main" type="submit" id="lin">Entrar</button></div>
     </form>
+  </div>
+  <p class="tag" style="max-width:400px">Alunos entram com o usuário e a senha criados pelo professor ou responsável.</p>
+  <div class="card login" style="margin-top:18px">
+    <h3 style="margin:0 0 4px;font-size:17px">Sou professor ou responsável</h3>
+    <p class="tag" style="margin:0 0 12px;font-size:14px">Crie sua conta com o usuário e a senha acima para cadastrar alunos e ver os relatórios.</p>
+    <label class="consent"><input type="checkbox" id="lok"> Sou maior de idade e responsável pelos alunos que vou cadastrar.</label>
+    <div class="btns left"><button class="btn" type="button" id="signup">Criar conta de responsável</button></div>
   </div>
   <button class="link" id="guest">Jogar sem conta (salva só neste aparelho)</button>
 </section>
@@ -174,9 +211,39 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--op);outline-off
   <div id="levels"></div>
   <div class="foot">
     <label class="chk"><input type="checkbox" id="snd" checked> Sons</label>
-    <label class="chk"><input type="checkbox" id="free"> Modo professor (libera todos os níveis)</label>
+    <label class="chk" id="freeRow"><input type="checkbox" id="free"> Modo professor (libera todos os níveis)</label>
     <button class="link" id="resetBtn">Apagar progresso</button>
   </div>
+</section>
+
+<section id="painel" hidden>
+  <header class="mast"><h1>Seus alunos</h1><p class="tag">Crie as contas dos alunos e acompanhe o que cada um treinou.</p></header>
+  <div class="btns left" style="margin-bottom:18px"><button class="btn main" id="addBtn">Adicionar aluno</button><button class="btn" id="linkBtn">Vincular aluno que já tem conta</button></div>
+  <form class="card addf" id="addForm" hidden novalidate>
+    <h3 id="addTitle"></h3>
+    <p class="tag" id="addHint" style="margin:0 0 12px;font-size:14px"></p>
+    <div class="form">
+      <label for="au">Usuário do aluno</label>
+      <input id="au" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
+      <label for="ap">Senha do aluno</label>
+      <input id="ap" autocomplete="off" autocapitalize="none" spellcheck="false">
+      <p class="err" id="aerr" role="alert"></p>
+      <div class="btns left"><button class="btn main" type="submit" id="asub"></button><button class="btn" type="button" id="acancel">Cancelar</button></div>
+    </div>
+  </form>
+  <p class="okmsg" id="aok" hidden></p>
+  <div id="slist"></div>
+</section>
+
+<section id="aluno" hidden>
+  <button class="link" id="back">‹ Voltar para os alunos</button>
+  <header class="mast" style="margin-top:6px"><h1 id="sname"></h1><p class="tag" id="ssub"></p></header>
+  <div class="opgrid" id="sops"></div>
+  <label class="chk"><input type="checkbox" id="slib"> Liberar todos os níveis para este aluno</label>
+  <h2 class="h2">Contas que mais erra</h2>
+  <div id="smiss"></div>
+  <h2 class="h2">Últimas partidas</h2>
+  <div class="scroll" id="ssess"></div>
 </section>
 
 <section id="game" hidden>
@@ -244,12 +311,12 @@ function buildLevels(o){
 const LV={};for(const o of['add','sub','mul','div'])LV[o]=buildLevels(o);
 let LEVELS=LV.add;
 const $=id=>document.getElementById(id);
-let op='add',free=false,sound=true,data={};
-try{free=localStorage.getItem('cr-free')==='1';sound=localStorage.getItem('cr-snd')!=='0';op=localStorage.getItem('cr-op')||'add'}catch(e){}
+let op='add',free=false,localFree=false,sound=true,data={},role=null;
+try{localFree=free=localStorage.getItem('cr-free')==='1';sound=localStorage.getItem('cr-snd')!=='0';op=localStorage.getItem('cr-op')||'add'}catch(e){}
 if(!OPS[op])op='add';
 LEVELS=LV[op];
 // ---- conta e nuvem ----
-let user=null,guest=false,auth=null,db=null,cloudT=0;
+let user=null,guest=false,auth=null,db=null,cloudT=0,pendingRole=null;
 if(window.firebase&&window.FIREBASE_CONFIG){
   try{firebase.initializeApp(window.FIREBASE_CONFIG);auth=firebase.auth();db=firebase.firestore()}catch(e){auth=null;db=null}
 }
@@ -260,12 +327,12 @@ function cloudSave(){
   if(!user||!db)return;
   clearTimeout(cloudT);setSync('Salvando…');
   cloudT=setTimeout(()=>{
-    db.collection('usuarios').doc(user.uid).set({nome:user.name,progresso:data,atualizado:firebase.firestore.FieldValue.serverTimestamp()})
+    db.collection('usuarios').doc(user.uid).set({nome:user.name,progresso:data,atualizado:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})
       .then(()=>setSync('Progresso salvo na nuvem'))
       .catch(()=>setSync('Sem conexão — será salvo quando a internet voltar'));
   },400);
 }
-const save=()=>{try{localStorage.setItem(lsKey(),JSON.stringify(data));localStorage.setItem('cr-free',free?'1':'0');localStorage.setItem('cr-snd',sound?'1':'0');localStorage.setItem('cr-op',op)}catch(e){}cloudSave()};
+const save=()=>{try{localStorage.setItem(lsKey(),JSON.stringify(data));localStorage.setItem('cr-free',localFree?'1':'0');localStorage.setItem('cr-snd',sound?'1':'0');localStorage.setItem('cr-op',op)}catch(e){}cloudSave()};
 function merge(a,b){const o={...a};for(const k in b){const x=o[k]||{best:0,pass:false},y=b[k]||{};o[k]={best:Math.max(x.best||0,y.best||0),pass:!!(x.pass||y.pass)}}return o}
 const rec=(o,i)=>data[LV[o][i].key]||{best:0,pass:false};
 const ORDER=['add','sub','mul','div'];
@@ -325,7 +392,7 @@ function beep(f,d,type='sine',v=.12){
 // ---- tela inicial ----
 const LOCK='<svg class="lock" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V8a6 6 0 1 1 12 0v2h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1zm2 0h8V8a4 4 0 1 0-8 0v2z"/></svg>';
 let scrollNext=true;
-function show(id){for(const s of['login','home','game','result','confirm'])$(s).hidden=s!==id;$('ubar').hidden=!auth||!(id==='home'||id==='result');window.scrollTo(0,0)}
+function show(id){for(const s of['login','home','painel','aluno','game','result','confirm'])$(s).hidden=s!==id;$('ubar').hidden=!auth||!['home','result','painel','aluno'].includes(id);window.scrollTo(0,0)}
 var renderHome;renderHome=function(){
   if(!opUnlocked(op))op='add';
   document.body.dataset.op=op;LEVELS=LV[op];
@@ -355,11 +422,11 @@ var renderHome;renderHome=function(){
   if(nb&&scrollNext){scrollNext=false;requestAnimationFrame(()=>nb.scrollIntoView({block:'center'}))}
   $('progTxt').textContent=`${done} de ${LEVELS.length} níveis`;
   $('progBar').style.width=(done/LEVELS.length*100)+'%';
-  $('free').checked=free;$('snd').checked=sound;
+  $('free').checked=localFree;$('snd').checked=sound;
 }
 $('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;op=b.dataset.op;save();scrollNext=true;renderHome()});
 $('levels').addEventListener('click',e=>{const b=e.target.closest('.lv');if(b&&!b.disabled)start(+b.dataset.i)});
-$('free').addEventListener('change',e=>{free=e.target.checked;save();renderHome()});
+$('free').addEventListener('change',e=>{localFree=free=e.target.checked;save();renderHome()});
 $('snd').addEventListener('change',e=>{sound=e.target.checked;save()});
 $('resetBtn').addEventListener('click',()=>show('confirm'));
 $('cNo').addEventListener('click',()=>show('home'));
@@ -430,6 +497,10 @@ function finish(){
   const unanswered=TOTAL-G.k,pass=G.hits>=PASS,i=G.i;
   const r=rec(op,i);
   data[LV[op][i].key]={best:Math.max(r.best,G.hits),pass:r.pass||pass};save();
+  if(user&&db&&role==='aluno'){
+    db.collection('usuarios').doc(user.uid).collection('sessoes').add({op,nivel:i+1,chave:LV[op][i].key,nome:LV[op][i].t,acertos:G.hits,respondidas:G.k,
+      tempo:Math.round(used),passou:pass,erros:G.wrong.map(w=>({a:w.a,b:w.b,r:w.r,v:w.v})),data:firebase.firestore.FieldValue.serverTimestamp()}).catch(()=>{});
+  }
   const st=starsOf(G.hits);
   $('medal').innerHTML=medal(pass,st,G.hits);
   $('score').innerHTML=`${G.hits}<small>/50</small>`;
@@ -480,12 +551,13 @@ async function doAuth(mode){
   const u=$('lu').value.trim().toLowerCase(),p=$('lp').value;
   if(!/^[a-z0-9._-]{3,20}$/.test(u))return lerr('Usuário: de 3 a 20 letras ou números, sem espaços nem acentos.');
   if(p.length<6)return lerr('A senha precisa ter pelo menos 6 caracteres.');
+  if(mode==='up'&&!$('lok').checked)return lerr('Para criar uma conta de responsável, confirme que você é maior de idade.');
   lerr('');$('lin').disabled=$('signup').disabled=true;
   try{
     const em=u+'@fatosbasicos.app';
-    if(mode==='up')await auth.createUserWithEmailAndPassword(em,p);else await auth.signInWithEmailAndPassword(em,p);
+    if(mode==='up'){pendingRole='responsavel';await auth.createUserWithEmailAndPassword(em,p)}else await auth.signInWithEmailAndPassword(em,p);
     $('lp').value='';
-  }catch(e){lerr(ERR[e.code]||('Não deu certo ('+(e.code||e.message)+').'))}
+  }catch(e){pendingRole=null;lerr(ERR[e.code]||('Não deu certo ('+(e.code||e.message)+').'))}
   $('lin').disabled=$('signup').disabled=false;
 }
 $('loginForm').addEventListener('submit',e=>{e.preventDefault();doAuth('in')});
@@ -499,26 +571,130 @@ function renderUser(){
   $('uname').innerHTML=user?'<b></b>':'Sem conta';if(user)$('uname').firstChild.textContent=user.name;
   if(!user)setSync('');
   $('logout').textContent=user?'Sair':'Entrar';
+  const isAluno=!!user&&role==='aluno';
+  $('freeRow').hidden=isAluno;$('resetBtn').hidden=isAluno;
 }
 const _render=renderHome;
 renderHome=function(){_render();renderUser()};
+
+
+// ---- painel do responsável ----
+const TOTAL_LV=ORDER.reduce((n,o)=>n+LV[o].length,0);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let sec=null,students=[],addMode='new',curStudent=null;
+function secApp(){if(!sec){sec=firebase.initializeApp(window.FIREBASE_CONFIG,'sec');sec.auth().setPersistence(firebase.auth.Auth.Persistence.NONE).catch(()=>{})}return sec}
+function summary(prog){
+  prog=prog||{};let done=0;const per={};
+  for(const o of ORDER){per[o]=LV[o].filter(L=>prog[L.key]&&prog[L.key].pass).length;done+=per[o]}
+  let where='Concluiu todas as operações';
+  for(const o of ORDER){const L=LV[o].find(L=>!(prog[L.key]&&prog[L.key].pass));if(L){where=`${OPS[o].n}: ${L.t}`;break}}
+  if(!Object.keys(prog).length)where='Ainda não jogou';
+  return {done,per,where};
+}
+function when(ts){
+  if(!ts||!ts.toDate)return '—';
+  const d=ts.toDate(),now=new Date(),hm=d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const day=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime(),diff=(day(now)-day(d))/864e5;
+  if(diff===0)return 'hoje, '+hm;if(diff===1)return 'ontem, '+hm;
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+', '+hm;
+}
+async function openPainel(){
+  show('painel');$('addForm').hidden=true;
+  $('slist').innerHTML='<p class="empty">Carregando alunos…</p>';
+  try{
+    const q=await db.collection('usuarios').where('responsavel','==',user.uid).get();
+    students=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
+  }catch(e){$('slist').innerHTML='<p class="empty">Não foi possível carregar os alunos. Verifique a internet e as regras do Firestore.</p>';return}
+  if(!students.length){$('slist').innerHTML='<p class="empty">Nenhum aluno ainda. Use “Adicionar aluno” para criar a primeira conta.</p>';return}
+  $('slist').innerHTML=students.map((st,k)=>{const sm=summary(st.progresso);
+    return `<button class="srow" data-k="${k}"><b>${esc(st.nome)}</b><span class="where">${esc(sm.where)}</span><span class="cnt">${sm.done} de ${TOTAL_LV} níveis</span><span class="when">${when(st.atualizado)}</span></button>`}).join('');
+}
+$('slist').addEventListener('click',e=>{const b=e.target.closest('.srow');if(b)openStudent(students[+b.dataset.k])});
+function openForm(mode){
+  addMode=mode;$('aok').hidden=true;$('addForm').hidden=false;$('aerr').textContent='';$('au').value='';$('ap').value='';
+  $('addTitle').textContent=mode==='new'?'Novo aluno':'Vincular aluno que já tem conta';
+  $('addHint').textContent=mode==='new'?'Escolha um usuário (sem espaços nem acentos) e uma senha de pelo menos 6 caracteres. Passe esses dados para o aluno entrar.':'Digite o usuário e a senha que o aluno já usa. O progresso dele é mantido.';
+  $('asub').textContent=mode==='new'?'Criar conta do aluno':'Vincular';
+  $('au').focus();
+}
+$('addBtn').addEventListener('click',()=>openForm('new'));
+$('linkBtn').addEventListener('click',()=>openForm('link'));
+$('acancel').addEventListener('click',()=>{$('addForm').hidden=true});
+$('addForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const u=$('au').value.trim().toLowerCase(),p=$('ap').value,err=t=>{$('aerr').textContent=t};
+  if(!/^[a-z0-9._-]{3,20}$/.test(u))return err('Usuário: de 3 a 20 letras ou números, sem espaços nem acentos.');
+  if(p.length<6)return err('A senha precisa ter pelo menos 6 caracteres.');
+  if(u===user.name)return err('Esse é o seu próprio usuário. Use outro para o aluno.');
+  err('');$('asub').disabled=true;
+  const s2=secApp(),em=u+'@fatosbasicos.app';
+  try{
+    const cred=addMode==='new'?await s2.auth().createUserWithEmailAndPassword(em,p):await s2.auth().signInWithEmailAndPassword(em,p);
+    const ref=s2.firestore().collection('usuarios').doc(cred.user.uid);
+    if(addMode==='link'){const sn=await ref.get();if(sn.exists&&sn.data().papel==='responsavel'){await s2.auth().signOut();$('asub').disabled=false;return err('Essa é uma conta de responsável, não de aluno.')}}
+    await ref.set({papel:'aluno',nome:u,responsavel:user.uid,vinculado:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    await s2.auth().signOut();
+    $('addForm').hidden=true;$('aok').hidden=false;
+    $('aok').innerHTML=addMode==='new'?`Conta criada. Usuário: <code>${esc(u)}</code> · Senha: <code>${esc(p)}</code>. Anote e passe para o aluno.`:`${esc(u)} foi vinculado à sua conta.`;
+    openPainel();show('painel');
+  }catch(e2){try{await s2.auth().signOut()}catch(_){}
+    err(ERR[e2.code]||('Não deu certo ('+(e2.code||e2.message)+').'))}
+  $('asub').disabled=false;
+});
+async function openStudent(st){
+  curStudent=st;show('aluno');
+  const sm=summary(st.progresso);
+  $('sname').textContent=st.nome;
+  $('ssub').textContent=`${sm.where}. Última atividade: ${when(st.atualizado)}.`;
+  const COL={add:'#2f5bea',sub:'#c2410c',mul:'#0f766e',div:'#7c3aed'};
+  $('sops').innerHTML=ORDER.map(o=>`<div class="opc" style="--c:${COL[o]}"><div class="t">${OPS[o].n}<span>${sm.per[o]} de ${LV[o].length}</span></div><div class="bar"><i style="width:${sm.per[o]/LV[o].length*100}%"></i></div></div>`).join('');
+  $('slib').checked=!!st.liberado;
+  $('smiss').innerHTML='<p class="tag">Carregando…</p>';$('ssess').innerHTML='';
+  let ses=[];
+  try{const q=await db.collection('usuarios').doc(st.id).collection('sessoes').orderBy('data','desc').limit(100).get();ses=q.docs.map(d=>d.data())}
+  catch(e){$('smiss').innerHTML='<p class="empty">Não foi possível carregar as partidas.</p>';return}
+  if(curStudent!==st)return;
+  const cnt=new Map();
+  ses.forEach(x=>(x.erros||[]).forEach(w=>{const k=`${w.a} ${OPS[x.op].s} ${w.b} = ${w.r}`;cnt.set(k,(cnt.get(k)||0)+1)}));
+  const top=[...cnt.entries()].sort((a,b)=>b[1]-a[1]).slice(0,12);
+  $('smiss').innerHTML=top.length?`<div class="misses">${top.map(([k,n])=>`<span class="miss">${esc(k)}<small>${n}×</small></span>`).join('')}</div>`:'<p class="empty">Nenhum erro registrado ainda.</p>';
+  $('ssess').innerHTML=ses.length?`<table class="ses"><thead><tr><th>Quando</th><th>Operação</th><th>Nível</th><th class="num">Acertos</th><th class="num">Tempo</th><th>Resultado</th></tr></thead><tbody>${ses.map(x=>{
+    const t=x.tempo||0;return `<tr><td>${when(x.data)}</td><td>${esc(OPS[x.op]?OPS[x.op].n:x.op)}</td><td>${esc(x.nivel)}. ${esc(x.nome)}</td><td class="num">${esc(x.acertos)}/50</td><td class="num">${t/60|0}:${String(t%60).padStart(2,'0')}</td><td>${x.passou?'<span class="tagok">Passou</span>':'<span class="tagno">Não passou</span>'}</td></tr>`}).join('')}</tbody></table>`:'<p class="empty">Nenhuma partida registrada ainda. As partidas aparecem aqui depois que o aluno jogar.</p>';
+}
+$('back').addEventListener('click',openPainel);
+$('slib').addEventListener('change',async e=>{
+  if(!curStudent)return;const v=e.target.checked;
+  try{await db.collection('usuarios').doc(curStudent.id).update({liberado:v});curStudent.liberado=v}
+  catch(_){e.target.checked=!v}
+});
 
 if(auth){
   show('login');
   auth.onAuthStateChanged(async u=>{
     if(u){
       guest=false;user={uid:u.uid,name:(u.email||'').split('@')[0]};
-      loadLocal();scrollNext=true;renderHome();show('home');setSync('Carregando progresso…');
-      try{
-        const snap=await db.collection('usuarios').doc(u.uid).get();
-        const cloud=snap.exists?(snap.data().progresso||{}):{};
-        const before=JSON.stringify(cloud);
+      const ref=db.collection('usuarios').doc(u.uid),FV=firebase.firestore.FieldValue;
+      if(pendingRole==='responsavel'){
+        pendingRole=null;
+        try{await ref.set({papel:'responsavel',nome:user.name,criado:FV.serverTimestamp()},{merge:true})}catch(e){}
+        try{localStorage.setItem('cr-role-'+u.uid,'responsavel')}catch(e){}
+      }
+      let d=null;
+      try{const snap=await ref.get();d=snap.exists?snap.data():{}}catch(e){}
+      let cachedRole=null;try{cachedRole=localStorage.getItem('cr-role-'+u.uid)}catch(e){}
+      role=(d?d.papel:cachedRole)==='responsavel'?'responsavel':'aluno';
+      try{localStorage.setItem('cr-role-'+u.uid,role)}catch(e){}
+      if(role==='responsavel'){renderUser();setSync('');openPainel();return}
+      free=!!(d&&d.liberado);
+      loadLocal();
+      if(d){
+        const cloud=d.progresso||{},before=JSON.stringify(cloud);
         data=merge(data,cloud);
         if(JSON.stringify(data)!==before)save();else{try{localStorage.setItem(lsKey(),JSON.stringify(data))}catch(e){}setSync('Progresso salvo na nuvem')}
-        if(!$('home').hidden){scrollNext=true;renderHome()}
-      }catch(e){setSync('Sem conexão — usando o progresso deste aparelho')}
+      }else setSync('Sem conexão — usando o progresso deste aparelho');
+      scrollNext=true;renderHome();show('home');
     }else{
-      user=null;if(G){G.over=true;clearTimeout(G.timer)}
+      user=null;role=null;free=localFree;if(G){G.over=true;clearTimeout(G.timer)}
       if(!guest)show('login');
     }
   });
