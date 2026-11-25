@@ -406,7 +406,7 @@ const OPCOL={add:'#2f5bea',sub:'#c2410c',mul:'#0f766e',div:'#7c3aed'};
 // O dígito treinado é sempre o 2º termo (na subtração, o subtraendo; na divisão, o divisor — sem zero).
 const joinOu=a=>a.length===1?String(a[0]):a.slice(0,-1).join(', ')+' ou '+a[a.length-1];
 const MIXT={sub:'e somas',mul:', somas e subtrações',div:'e as outras operações'};
-const MIXS={sub:'+ somas',mul:'+ revisão',div:'+ revisão'};
+const MIXS={sub:'+ revisão',mul:'+ revisão',div:'+ revisão'};
 function buildLevels(o){
   const first=o==='div'?1:0,out=[],allD=[];
   for(let k=first;k<=9;k++)allD.push(k);
