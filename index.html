@@ -5,137 +5,169 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fatos Básicos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-/* VOICE: alegre, direto, feito para crianças — botões grandes, poucas palavras
-   IDEA: um caderno de exercícios com cartões de conta e uma ampulheta
-   PICTURE: o próprio jogo — cartão grande com a conta, 4 respostas, barra de tempo
-   COLOUR and TYPE: cada operação tem sua cor; Baloo 2 arredondada
-   LAYOUT: uma coluna centrada; mapa de níveis em grade que quebra no celular */
+/* VOICE: brincalhão e claro — feito para crianças lerem rápido
+   IDEA: caderno quadriculado de escola, com cartões presos por fita e adesivos coloridos
+   PICTURE: no jogo, o cartão da conta e um lápis que encolhe com o tempo; em casa, níveis como adesivos redondos
+   COLOUR and TYPE: papel branco-azulado, tinta azul-marinho, um adesivo de cor por operação; Fredoka nos números, Nunito no texto
+   LAYOUT: coluna única centrada; grade de adesivos que quebra em qualquer largura */
 :root{color-scheme:light dark;
-  --bg:light-dark(#fff8e7,#14162b);--card:light-dark(#ffffff,#1f2240);--ink:light-dark(#1d1b3a,#f4f2ff);
-  --soft:light-dark(#6b6890,#a9a6cf);--line:light-dark(#ece4cf,#2e3260);
-  --ok:#17a05d;--bad:#e5484d;--op:#2f6fed;--opd:light-dark(#dfe9ff,#22305e)}
+  --paper:light-dark(#f7fbff,#141d36);--grid:light-dark(#d9e7f5,#1d2a4b);--margin:light-dark(#f4a6a0,#5b2d3d);
+  --card:light-dark(#ffffff,#1c2848);--ink:light-dark(#1e2a4a,#eef3ff);--soft:light-dark(#5d6b8c,#9eb0d6);
+  --line:light-dark(#cfdbea,#33436b);--ok:#16a34a;--bad:#e5484d;--tape:light-dark(rgba(255,233,150,.75),rgba(255,214,102,.35));
+  --op:#f5a300;--on:#1e2a4a;--opl:light-dark(#fff1cc,#3d3214)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
-body[data-op=sub]{--op:#e8590c;--opd:light-dark(#ffe6d6,#4a2a16)}
-body[data-op=mul]{--op:#12a17a;--opd:light-dark(#d5f5ea,#173f35)}
-body[data-op=div]{--op:#8b4fe8;--opd:light-dark(#ece0ff,#35245a)}
+body[data-op=sub]{--op:#3a7bff;--on:#fff;--opl:light-dark(#dde8ff,#1d2d58)}
+body[data-op=mul]{--op:#f0437e;--on:#fff;--opl:light-dark(#ffdce8,#4a1d32)}
+body[data-op=div]{--op:#0fa596;--on:#fff;--opl:light-dark(#d2f4ef,#123f3b)}
 *{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 "Baloo 2",system-ui,sans-serif;overflow-x:clip;min-height:100vh}
+body{margin:0;min-height:100vh;color:var(--ink);font:17px/1.5 Nunito,system-ui,sans-serif;overflow-x:clip;
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px}
+@media(min-width:760px){body::before{content:"";position:fixed;top:0;bottom:0;left:max(12px,calc(50% - 470px));width:2px;background:var(--margin);pointer-events:none}}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
-button:focus-visible{outline:3px solid var(--op);outline-offset:3px}
-.wrap{max-width:860px;margin:0 auto;padding:clamp(16px,4vw,40px) max(4vw,14px) 48px}
-h1{font-size:clamp(34px,6vw,50px);line-height:1.05;margin:0;font-weight:800}
-h1 b{color:var(--op)}
-.sub{color:var(--soft);margin:4px 0 22px}
-.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:22px}
-.tab{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:10px 6px;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .15s}
-.tab .s{font-size:32px;line-height:1;font-weight:800}
-.tab .n{font-size:14px;color:var(--soft)}
-.tab{position:relative}.tab:disabled{opacity:.45;cursor:not-allowed}
-.tab[aria-pressed=true]{border-color:var(--op);background:var(--opd);transform:translateY(-2px)}
-.tab[aria-pressed=true] .s{color:var(--op)}
-.prog{display:flex;align-items:center;gap:12px;margin:0 0 14px;font-weight:700}
-.bar{flex:1;height:14px;border-radius:9px;background:var(--line);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--op);border-radius:9px;transition:width .3s}
-.grp{margin-bottom:18px}
-.grp h2{font-size:22px;margin:0 0 8px;font-weight:800;color:var(--op);display:flex;align-items:baseline;gap:10px}
-.grp h2 small{font-size:15px;color:var(--soft);font-weight:700}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.lv{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:10px 12px;text-align:left;min-height:96px;display:flex;flex-direction:column;gap:2px;position:relative}
-.lv .num{font-size:13px;color:var(--soft);font-weight:700}
-.lv .t{font-weight:800;font-size:18px;line-height:1.15}
-.lv .st{margin-top:auto;font-size:14px;color:var(--soft)}
-.lv .stars{color:#f5b300;letter-spacing:2px}
-.lv.done{border-color:var(--op)}
-.lv.next{border-color:var(--op);box-shadow:0 5px 0 var(--op)}
-.lv:disabled{opacity:.45;cursor:not-allowed}
-.lock{position:absolute;right:10px;top:8px;width:18px;height:18px}
-.foot{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px 18px;color:var(--soft);font-size:15px;align-items:center}
+button:focus-visible,input:focus-visible{outline:3px solid var(--op);outline-offset:3px}
+.wrap{max-width:860px;margin:0 auto;padding:clamp(16px,4vw,36px) max(4vw,16px) 56px}
+.f{font-family:Fredoka,Nunito,sans-serif}
+/* cabeçalho */
+.mast{margin:4px 0 20px}
+.logo{font:700 clamp(40px,8vw,60px)/1 Fredoka,sans-serif;margin:0;letter-spacing:-.01em;display:inline-block;padding-bottom:10px;
+  background:no-repeat left bottom/100% 14px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 14' preserveAspectRatio='none'%3E%3Cpath d='M3 9 C 50 2, 90 13, 140 7 S 240 3, 297 8' fill='none' stroke='%23f5a300' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E")}
+.tag{margin:8px 0 0;color:var(--soft);font-weight:700}
+/* cartão com fita */
+.card{background:var(--card);border:2px solid var(--line);border-radius:6px;box-shadow:3px 5px 0 var(--line);position:relative}
+.taped::before{content:"";position:absolute;top:-13px;left:50%;width:96px;height:26px;margin-left:-48px;background:var(--tape);transform:rotate(-3deg);border-radius:2px}
+/* abas de operação */
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.tab{--c:#f5a300;--t:#1e2a4a;position:relative;background:var(--card);border:3px solid var(--ink);border-radius:20px;padding:8px 4px 6px;min-height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 5px 0 var(--ink)}
+.tab[data-op=sub]{--c:#3a7bff;--t:#fff}.tab[data-op=mul]{--c:#f0437e;--t:#fff}.tab[data-op=div]{--c:#0fa596;--t:#fff}
+.tab .s{font:700 34px/1 Fredoka,sans-serif;color:var(--c)}
+.tab .n{font-size:13px;font-weight:800}
+.tab[aria-pressed=true]{background:var(--c);color:var(--t);transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
+.tab[aria-pressed=true] .s{color:var(--t)}
+.tab:disabled{opacity:.5;cursor:not-allowed;border-style:dashed;box-shadow:none}
+.tab .lock{position:absolute;right:8px;top:7px;width:15px;height:15px}
+.note{background:var(--opl);border-radius:12px;padding:8px 14px;font-weight:700;margin:0 0 14px}
+.prog{display:flex;align-items:center;gap:12px;margin:0 0 22px;font-weight:800}
+.bar{flex:1;height:14px;border-radius:9px;background:var(--card);border:2px solid var(--ink);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--op);transition:width .4s}
+/* níveis como adesivos */
+.grp{margin-bottom:22px}
+.gh{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sticker{font:700 20px/1 Fredoka,sans-serif;margin:0;background:var(--op);color:var(--on);padding:8px 14px 7px;border-radius:12px;transform:rotate(-2deg);box-shadow:2px 3px 0 var(--ink)}
+.gh small{color:var(--soft);font-weight:800;font-size:15px}
+.dots{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:12px 8px}
+.lv{display:flex;flex-direction:column;align-items:center;gap:4px;padding:2px;border-radius:14px}
+.disc{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;text-align:center;background:var(--card);border:3px solid var(--ink);box-shadow:0 5px 0 var(--ink);font:600 17px/1.05 Fredoka,sans-serif;padding:6px}
+.disc.one{font-size:34px;font-weight:700}
+.lv .st{font-size:13px;font-weight:800;color:var(--soft);min-height:20px;display:flex;align-items:center}
+.stars{color:#f5a300;font-size:16px;letter-spacing:1px;-webkit-text-stroke:.5px #b97900}
+.lv.done .disc{background:var(--op);color:var(--on)}
+.lv.next .disc{background:var(--opl);border-color:var(--op);box-shadow:0 5px 0 var(--op)}
+.lv.next .st{color:var(--op)}
+.lv:not(:disabled):active .disc{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.lv:disabled{cursor:not-allowed}
+.lv:disabled .disc{border-style:dashed;box-shadow:none;color:var(--soft);background:transparent}
+.lv .lock{width:14px;height:14px}
+@keyframes nudge{0%,100%{transform:none}50%{transform:translateY(-4px)}}
+.lv.next .disc{animation:nudge 1.6s ease-in-out infinite}
+/* rodapé e conta */
+.foot{margin-top:28px;display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--soft);font-size:15px;font-weight:700;align-items:center}
 .chk{display:flex;align-items:center;gap:8px;min-height:44px}
 .chk input{width:22px;height:22px;accent-color:var(--op)}
-.link{text-decoration:underline;min-height:44px;color:var(--soft)}
-.rules{background:var(--opd);border-radius:18px;padding:12px 16px;margin:0 0 20px;font-size:16px}
+.link{text-decoration:underline;text-underline-offset:3px;min-height:44px;color:var(--soft);font-weight:700}
+.ubar{display:flex;flex-wrap:wrap;align-items:center;gap:0 14px;margin-bottom:6px;font-weight:800}
+.ubar .sync{color:var(--soft);font-weight:600;font-size:14px;flex:1}
+.login{max-width:420px;padding:28px 22px 20px;margin:24px 0 10px}
+.form{display:flex;flex-direction:column;gap:6px}
+.form label{font-weight:800}
+.form input{font:600 20px Nunito,sans-serif;padding:10px 14px;border-radius:12px;border:3px solid var(--ink);background:var(--paper);color:var(--ink);min-height:52px}
+.err{color:var(--bad);min-height:1.4em;margin:4px 0;font-weight:800}
+/* botões */
+.btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:12px 0 26px}
+.btns.left{justify-content:flex-start;margin:4px 0}
+.btn{min-height:54px;padding:8px 22px;border-radius:16px;font:600 20px Fredoka,sans-serif;background:var(--card);border:3px solid var(--ink);box-shadow:0 5px 0 var(--ink)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.btn.main{background:var(--op);color:var(--on)}
+.btn.danger{background:var(--bad);color:#fff}
 /* jogo */
-.top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.x{width:44px;height:44px;border-radius:14px;background:var(--card);border:3px solid var(--line);font-size:22px;font-weight:800;line-height:1}
-.ttl{flex:1;font-weight:800;font-size:18px;line-height:1.1}
-.ttl small{display:block;color:var(--soft);font-weight:500;font-size:14px}
-.clock{font-weight:800;font-size:28px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.top{display:flex;align-items:center;gap:12px}
+.x{width:46px;height:46px;border-radius:14px;background:var(--card);border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);font:700 26px/1 Fredoka,sans-serif}
+.ttl{flex:1;font:600 19px/1.1 Fredoka,sans-serif}
+.ttl small{display:block;color:var(--soft);font:700 14px Nunito,sans-serif}
+.clock{font:700 30px Fredoka,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
 .clock.low{color:var(--bad)}
-.tbar{height:16px;border-radius:9px;background:var(--line);overflow:hidden;margin-bottom:10px}
-.tbar i{display:block;height:100%;width:100%;background:var(--op);transform-origin:left;border-radius:9px}
-.stats{display:flex;justify-content:space-between;font-weight:700;color:var(--soft);margin-bottom:14px;font-size:16px}
-.stats b{color:var(--ink)}
-.q{background:var(--card);border:4px solid var(--op);border-radius:28px;box-shadow:0 8px 0 var(--op);text-align:center;padding:clamp(22px,5vw,44px) 10px;margin-bottom:26px;position:relative}
-.q .expr{font-size:clamp(64px,16vw,120px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
-.q .expr span{color:var(--op)}
-.q .cd{font-size:clamp(80px,20vw,140px);font-weight:800;line-height:1;color:var(--op)}
+.pencil{--p:1;display:flex;align-items:center;height:30px;margin:14px 0 10px}
+.pencil i{display:block;height:26px;flex:none}
+.eraser{width:22px;background:#f49ac1;border-radius:9px 0 0 9px;border:2px solid var(--ink);border-right:0}
+.band{width:12px;background:repeating-linear-gradient(90deg,#c3c8d4 0 3px,#8d93a3 3px 6px);border-block:2px solid var(--ink)}
+.wood{width:calc(var(--p) * (100% - 76px));background:linear-gradient(#ffd84d 0 33%,#f6b900 33% 66%,#e5a400 66%);border-block:2px solid var(--ink)}
+.pencil.low .wood{background:linear-gradient(#ff8a80 0 33%,#ef5350 33% 66%,#d84340 66%)}
+.tip{width:42px;background:linear-gradient(90deg,#f3d6a6 68%,var(--ink) 68%);clip-path:polygon(0 0,100% 50%,0 100%)}
+.stats{display:flex;justify-content:space-between;font-weight:800;color:var(--soft);margin-bottom:26px;font-size:16px}
+.stats b{color:var(--ink);font-family:Fredoka,sans-serif;font-size:19px}
+.q{text-align:center;padding:clamp(26px,6vw,48px) 10px;margin:0 4px 28px;transform:rotate(-1deg);
+  background-image:linear-gradient(transparent 0 calc(100% - 1px),light-dark(#e4eefa,#26355c) 0);background-size:100% 34px;background-color:var(--card)}
+.expr{font:700 clamp(68px,17vw,124px)/1 Fredoka,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.expr span{color:var(--op)}
+.cd{font:700 clamp(84px,20vw,140px)/1 Fredoka,sans-serif;color:var(--op)}
 .ans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.a{background:var(--card);border:4px solid var(--line);border-radius:22px;min-height:clamp(84px,16vw,110px);font-size:clamp(40px,9vw,58px);font-weight:800;box-shadow:0 6px 0 var(--line);font-variant-numeric:tabular-nums;position:relative;transition:transform .08s}
-.a:active{transform:translateY(4px);box-shadow:0 2px 0 var(--line)}
-.a kbd{position:absolute;left:12px;top:6px;font:700 13px "Baloo 2",sans-serif;color:var(--soft)}
-.a.ok{background:var(--ok);border-color:var(--ok);color:#fff;box-shadow:0 6px 0 #0d6e3f}
-.a.bad{background:var(--bad);border-color:var(--bad);color:#fff;box-shadow:0 6px 0 #a3262a}
+.a{position:relative;background:var(--card);border:3px solid var(--ink);border-radius:22px;min-height:clamp(86px,17vw,112px);font:700 clamp(42px,9vw,60px) Fredoka,sans-serif;font-variant-numeric:tabular-nums;box-shadow:0 6px 0 var(--ink)}
+.a:not(:disabled):active{transform:translateY(5px);box-shadow:0 1px 0 var(--ink)}
+.a kbd{position:absolute;left:12px;top:6px;font:800 13px Nunito,sans-serif;color:var(--soft)}
+.a.ok{background:var(--ok);color:#fff}.a.bad{background:var(--bad);color:#fff}
+.a.ok kbd,.a.bad kbd{color:#fff}
 .a:disabled{cursor:default}
 /* resultado */
 .res{text-align:center}
-.medal{width:150px;height:150px;margin:0 auto 6px;display:block}
-.big{font-size:clamp(56px,14vw,96px);font-weight:800;line-height:1;margin:6px 0}
-.big small{font-size:.4em;color:var(--soft)}
-.msg{font-size:20px;margin:6px auto 18px;max-width:30em}
-.btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:10px 0 26px}
-.btn{min-height:54px;padding:8px 22px;border-radius:16px;font-weight:800;font-size:19px;background:var(--card);border:3px solid var(--line)}
-.btn.main{background:var(--op);border-color:var(--op);color:#fff;box-shadow:0 5px 0 color-mix(in srgb,var(--op) 70%,#000)}
-.errs{text-align:left;background:var(--card);border:3px solid var(--line);border-radius:18px;padding:12px 16px}
-.errs h3{margin:0 0 6px;font-size:19px}
-.errs ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px 14px}
-.errs li{font-variant-numeric:tabular-nums;white-space:nowrap}
-.errs s{color:var(--bad)}.errs b{color:var(--ok)}
-.form{display:flex;flex-direction:column;gap:6px;max-width:380px;margin:8px 0 14px}
-.form label{font-weight:700}
-.form input{font:inherit;font-size:20px;padding:10px 14px;border-radius:14px;border:3px solid var(--line);background:var(--card);color:var(--ink);min-height:52px}
-.form input:focus{outline:none;border-color:var(--op)}
-.err{color:var(--bad);min-height:1.4em;margin:4px 0;font-weight:700}
-.btns.left{justify-content:flex-start;margin:4px 0}
-.ubar{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-bottom:10px;font-weight:700}
-.ubar .sync{color:var(--soft);font-weight:500;font-size:14px;flex:1}
+.rcard{max-width:520px;margin:22px auto 8px;padding:30px 18px 22px}
+.medal{width:132px;height:132px;display:block;margin:0 auto}
+.big{font:700 clamp(60px,15vw,96px)/1 Fredoka,sans-serif;margin:4px 0}
+.big small{font-size:.42em;color:var(--soft)}
+.msg{font-size:19px;font-weight:700;margin:8px auto 4px;max-width:28em}
+.errs{text-align:left;padding:16px 18px;max-width:640px;margin:0 auto}
+.errs h3{margin:0 0 8px;font:600 20px Fredoka,sans-serif}
+.errs ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px 14px}
+.errs li{font:600 19px Fredoka,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.errs s{color:var(--bad);font-size:.85em}.errs b{color:var(--ok)}
 [hidden]{display:none!important}
 @keyframes pop{0%{transform:scale(.85);opacity:.3}100%{transform:none;opacity:1}}
 .pop{animation:pop .18s ease-out}
-@media (prefers-reduced-motion:reduce){.pop{animation:none}.tab,.a,.bar i{transition:none}}
-@media(max-width:600px){.tab .n{font-size:12px}.ans{gap:10px}}
+@media (prefers-reduced-motion:reduce){.pop,.lv.next .disc{animation:none}.bar i{transition:none}}
+@media(max-width:440px){.tab .n{display:none}.tab{min-height:60px}.tab .s{font-size:34px!important}}
+@media(max-width:600px){.tab{min-height:68px}.tab .s{font-size:28px}.tab .n{font-size:11px}.dots{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}.disc{width:70px;height:70px}}
 </style>
 </head>
 <body data-op="add">
 <main class="wrap">
 
 <section id="login" hidden>
-  <h1>Fatos <b>Básicos</b></h1>
-  <p class="sub">Entre para guardar seu progresso e continuar em qualquer aparelho</p>
-  <form id="loginForm" class="form" novalidate>
-    <label for="lu">Usuário</label>
-    <input id="lu" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
-    <label for="lp">Senha</label>
-    <input id="lp" type="password" autocomplete="current-password">
-    <p class="err" id="lerr" role="alert"></p>
-    <div class="btns left"><button class="btn main" type="submit" id="lin">Entrar</button><button class="btn" type="button" id="signup">Criar conta</button></div>
-  </form>
+  <header class="mast"><h1 class="logo">Fatos Básicos</h1><p class="tag">Contas de 1 dígito contra o relógio</p></header>
+  <div class="card taped login">
+    <form id="loginForm" class="form" novalidate>
+      <label for="lu">Usuário</label>
+      <input id="lu" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
+      <label for="lp">Senha</label>
+      <input id="lp" type="password" autocomplete="current-password">
+      <p class="err" id="lerr" role="alert"></p>
+      <div class="btns left"><button class="btn main" type="submit" id="lin">Entrar</button><button class="btn" type="button" id="signup">Criar conta</button></div>
+    </form>
+  </div>
   <button class="link" id="guest">Jogar sem conta (salva só neste aparelho)</button>
 </section>
 
 <section id="home" hidden>
   <div class="ubar" id="ubar" hidden><span id="uname"></span><span class="sync" id="sync"></span><button class="link" id="logout"></button></div>
-  <h1>Fatos <b>Básicos</b></h1>
-  <p class="sub">Treino de contas de 1 dígito contra o relógio</p>
-  <div class="tabs" id="tabs" role="group" aria-label="Operação"></div>
-  <div class="rules">Cada nível tem <b>50 contas</b> em <b>2 minutos</b>. Acerte <b>45 ou mais (90%)</b> para liberar o próximo nível.</div>
-  <p class="sub" id="opNote" hidden></p>
+  <header class="mast"><h1 class="logo">Fatos Básicos</h1><p class="tag">50 contas em 2 minutos. Acerte 45 para passar de nível.</p></header>
+  <nav class="tabs" id="tabs" aria-label="Operação"></nav>
+  <p class="note" id="opNote" hidden></p>
   <div class="prog"><span id="progTxt"></span><div class="bar"><i id="progBar"></i></div></div>
-  <div class="levels" id="levels"></div>
+  <div id="levels"></div>
   <div class="foot">
     <label class="chk"><input type="checkbox" id="snd" checked> Sons</label>
-    <label class="chk"><input type="checkbox" id="free"> Modo professor (todos os níveis liberados)</label>
+    <label class="chk"><input type="checkbox" id="free"> Modo professor (libera todos os níveis)</label>
     <button class="link" id="resetBtn">Apagar progresso</button>
   </div>
 </section>
@@ -146,24 +178,28 @@ h1 b{color:var(--op)}
     <div class="ttl" id="gTitle"></div>
     <div class="clock" id="clock">2:00</div>
   </div>
-  <div class="tbar"><i id="tbar"></i></div>
-  <div class="stats"><span>Conta <b id="qn">0</b>/50</span><span>Acertos <b id="hits">0</b></span><span>Precisa <b>45</b></span></div>
-  <div class="q" id="qbox"><div class="expr" id="expr"></div></div>
+  <div class="pencil" id="pencil" aria-hidden="true"><i class="eraser"></i><i class="band"></i><i class="wood"></i><i class="tip"></i></div>
+  <div class="stats"><span>Conta <b id="qn">0</b>/50</span><span>Acertos <b id="hits">0</b></span><span>Meta <b>45</b></span></div>
+  <div class="q card taped" id="qbox"><div class="expr" id="expr"></div></div>
   <div class="ans" id="ans"></div>
 </section>
 
 <section id="result" class="res" hidden>
-  <svg class="medal" id="medal" viewBox="0 0 150 150" aria-hidden="true"></svg>
-  <div class="big" id="score"></div>
-  <p class="msg" id="msg"></p>
+  <div class="card taped rcard">
+    <svg class="medal" id="medal" viewBox="0 0 150 150" aria-hidden="true"></svg>
+    <div class="big" id="score"></div>
+    <p class="msg" id="msg"></p>
+  </div>
   <div class="btns" id="rbtns"></div>
-  <div class="errs" id="errs" hidden><h3>Para treinar</h3><ul id="errList"></ul></div>
+  <div class="card errs" id="errs" hidden><h3>Contas para treinar</h3><ul id="errList"></ul></div>
 </section>
 
 <section id="confirm" hidden style="text-align:center;padding-top:40px">
-  <h1 style="font-size:34px">Apagar todo o progresso?</h1>
-  <p class="msg">Os níveis voltam a ficar bloqueados nas quatro operações.</p>
-  <div class="btns"><button class="btn" id="cNo">Cancelar</button><button class="btn main" id="cYes" style="background:var(--bad);border-color:var(--bad)">Apagar</button></div>
+  <div class="card taped rcard">
+    <h1 class="f" style="font-size:32px;margin:0 0 6px">Apagar todo o progresso?</h1>
+    <p class="msg">Os níveis voltam a ficar bloqueados nas quatro operações.</p>
+  </div>
+  <div class="btns"><button class="btn" id="cNo">Cancelar</button><button class="btn danger" id="cYes">Apagar</button></div>
 </section>
 
 </main>
@@ -289,7 +325,7 @@ var renderHome;renderHome=function(){
   if(!opUnlocked(op))op='add';
   document.body.dataset.op=op;LEVELS=LV[op];
   $('tabs').innerHTML=Object.entries(OPS).map(([k,v])=>{const ul=opUnlocked(k);
-    return `<button class="tab" data-op="${k}" aria-pressed="${k===op}" ${ul?'':'disabled'}>${ul?'':LOCK}<span class="s">${v.s}</span><span class="n">${v.n}</span></button>`}).join('');
+    return `<button class="tab" data-op="${k}" aria-label="${v.n}${ul?'':' (bloqueada)'}" aria-pressed="${k===op}" ${ul?'':'disabled'}>${ul?'':LOCK}<span class="s">${v.s}</span><span class="n">${v.n}</span></button>`}).join('');
   const k=ORDER.indexOf(op),nx=ORDER[k+1];
   $('opNote').hidden=!(nx&&!opUnlocked(nx));
   if(nx)$('opNote').textContent=`Complete todos os níveis de ${OPS[op].n.toLowerCase()} para liberar ${OPS[nx].n.toLowerCase()}.`;
@@ -298,14 +334,17 @@ var renderHome;renderHome=function(){
     const r=rec(op,i),ul=unlocked(op,i);if(r.pass)done++;
     if(nextI<0&&ul&&!r.pass)nextI=i;
     const st=starsOf(r.best);
-    const status=r.pass?`<span class="stars">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span> ${r.best}/50`:r.best?`Melhor: ${r.best}/50`:ul?'Jogar':'Bloqueado';
-    return `<button class="lv${r.pass?' done':''}${i===nextI?' next':''}" data-i="${i}" ${ul?'':'disabled'}>${ul?'':LOCK}<span class="num">Nível ${i+1}</span><span class="t">${L.t}</span><span class="st">${status}</span></button>`;
+    const set=L.set,last=set.length>2&&set[set.length-1]-set[0]===set.length-1;
+    const lab=L.t==='Todos os dígitos'?'todos':set.length===1?String(set[0]):last?`${set[0]} a ${set[set.length-1]}`:`${set[0]} ou ${set[1]}`;
+    const status=r.pass?`<span class="stars" aria-hidden="true">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span>`:r.best?`${r.best}/50`:ul?(i===nextI?'jogar':''):LOCK;
+    const aria=`Nível ${i+1}: ${L.t}. `+(r.pass?`Vencido, ${r.best} de 50.`:r.best?`Melhor resultado ${r.best} de 50.`:ul?'Liberado.':'Bloqueado.');
+    return `<button class="lv${r.pass?' done':''}${i===nextI?' next':''}" data-i="${i}" ${ul?'':'disabled'} aria-label="${aria}" title="${aria}"><span class="disc${set.length===1?' one':''}">${lab}</span><span class="st">${status}</span></button>`;
   });
   const digits=[...new Set(LEVELS.map(L=>L.d))];
   $('levels').innerHTML=digits.map(d=>{
     const idx=LEVELS.map((L,i)=>L.d===d?i:-1).filter(i=>i>=0);
     const ok=idx.filter(i=>rec(op,i).pass).length;
-    return `<div class="grp"><h2>Dígito ${d} <small>${ok}/${idx.length}</small></h2><div class="grid">${idx.map(i=>cards[i]).join('')}</div></div>`;
+    return `<section class="grp"><div class="gh"><h2 class="sticker">Dígito ${d}</h2><small>${ok} de ${idx.length}</small></div><div class="dots">${idx.map(i=>cards[i]).join('')}</div></section>`;
   }).join('');
   const nb=$('levels').querySelector('.lv.next');
   if(nb&&scrollNext){scrollNext=false;requestAnimationFrame(()=>nb.scrollIntoView({block:'center'}))}
@@ -328,7 +367,7 @@ function start(i){
   G={i,q:buildRound(op,L.set),k:0,hits:0,wrong:[],t0:0,lock:true,over:false,timer:0};
   $('gTitle').innerHTML=`${VERB[op]} — ${L.t}<small>Nível ${i+1} de ${LEVELS.length}</small>`;
   $('qn').textContent='0';$('hits').textContent='0';$('clock').textContent='2:00';$('clock').classList.remove('low');
-  $('tbar').style.transform='scaleX(1)';
+  $('pencil').style.setProperty('--p',1);$('pencil').classList.remove('low');
   $('ans').innerHTML=[0,1,2,3].map(n=>`<button class="a" data-n="${n}" disabled><kbd>${n+1}</kbd>&nbsp;</button>`).join('');
   show('game');
   let c=3;
@@ -345,7 +384,7 @@ function tick(){
   const s=Math.ceil(left);
   $('clock').textContent=`${s/60|0}:${String(s%60).padStart(2,'0')}`;
   $('clock').classList.toggle('low',left<=15);
-  $('tbar').style.transform=`scaleX(${left/TIME})`;
+  $('pencil').style.setProperty('--p',left/TIME);$('pencil').classList.toggle('low',left<=15);
   if(left<=0){finish();return}
   raf=requestAnimationFrame(tick);
 }
@@ -413,12 +452,11 @@ $('rbtns').addEventListener('click',e=>{
   if(a==='next')start(i+1);else if(a==='again')start(i);else{G=null;scrollNext=true;renderHome();show('home')}
 });
 function medal(pass,st){
-  const col=pass?'var(--op)':'var(--line)';
-  const star=(x,y,s,on)=>`<path transform="translate(${x} ${y}) scale(${s})" d="M0-10 2.9-3.1 10.5-3.1 4.3 1.4 6.6 8.7 0 4.2-6.6 8.7-4.3 1.4-10.5-3.1-2.9-3.1Z" fill="${on?'#f5b300':'none'}" stroke="#f5b300" stroke-width="1.6"/>`;
-  return `<circle cx="75" cy="72" r="54" fill="${col}"/><circle cx="75" cy="72" r="44" fill="var(--card)"/>`+
-    (pass?`<path d="M54 74l14 14 28-30" fill="none" stroke="var(--ok)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>`
-         :`<text x="75" y="88" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="46" fill="var(--soft)">↻</text>`)+
-    star(38,132,1.2,st>=1)+star(75,138,1.4,st>=2)+star(112,132,1.2,st>=3);
+  const star=(x,y,sc,on)=>`<path transform="translate(${x} ${y}) scale(${sc})" d="M0-10 2.9-3.1 10.5-3.1 4.3 1.4 6.6 8.7 0 4.2-6.6 8.7-4.3 1.4-10.5-3.1-2.9-3.1Z" fill="${on?'#f5a300':'var(--card)'}" stroke="var(--ink)" stroke-width="1.4" stroke-linejoin="round"/>`;
+  return `<circle cx="78" cy="70" r="52" fill="var(--ink)"/><circle cx="75" cy="66" r="52" fill="${pass?'var(--op)':'var(--line)'}" stroke="var(--ink)" stroke-width="4"/><circle cx="75" cy="66" r="38" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/>`+
+    (pass?`<path d="M56 67l13 13 26-28" fill="none" stroke="var(--ok)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>`
+         :`<path d="M92 58a19 19 0 1 0 2 16" fill="none" stroke="var(--soft)" stroke-width="8" stroke-linecap="round"/><path d="M96 44v16H80" fill="none" stroke="var(--soft)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>`)+
+    star(40,132,1.3,st>=1)+star(75,138,1.55,st>=2)+star(110,132,1.3,st>=3);
 }
 // ---- entrar / criar conta ----
 const ERR={'auth/email-already-in-use':'Esse usuário já existe. Escolha outro nome.','auth/invalid-credential':'Usuário ou senha incorretos.','auth/invalid-login-credentials':'Usuário ou senha incorretos.','auth/wrong-password':'Usuário ou senha incorretos.','auth/user-not-found':'Usuário ou senha incorretos.','auth/network-request-failed':'Sem internet. Verifique a conexão.','auth/too-many-requests':'Muitas tentativas. Espere um pouco e tente de novo.','auth/weak-password':'A senha precisa ter pelo menos 6 caracteres.','auth/operation-not-allowed':'O login com senha ainda não foi ativado no Firebase.'};
