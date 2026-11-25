@@ -92,6 +92,14 @@ h1 b{color:var(--op)}
 .errs ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px 14px}
 .errs li{font-variant-numeric:tabular-nums;white-space:nowrap}
 .errs s{color:var(--bad)}.errs b{color:var(--ok)}
+.form{display:flex;flex-direction:column;gap:6px;max-width:380px;margin:8px 0 14px}
+.form label{font-weight:700}
+.form input{font:inherit;font-size:20px;padding:10px 14px;border-radius:14px;border:3px solid var(--line);background:var(--card);color:var(--ink);min-height:52px}
+.form input:focus{outline:none;border-color:var(--op)}
+.err{color:var(--bad);min-height:1.4em;margin:4px 0;font-weight:700}
+.btns.left{justify-content:flex-start;margin:4px 0}
+.ubar{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-bottom:10px;font-weight:700}
+.ubar .sync{color:var(--soft);font-weight:500;font-size:14px;flex:1}
 [hidden]{display:none!important}
 @keyframes pop{0%{transform:scale(.85);opacity:.3}100%{transform:none;opacity:1}}
 .pop{animation:pop .18s ease-out}
@@ -102,7 +110,22 @@ h1 b{color:var(--op)}
 <body data-op="add">
 <main class="wrap">
 
-<section id="home">
+<section id="login" hidden>
+  <h1>Fatos <b>Básicos</b></h1>
+  <p class="sub">Entre para guardar seu progresso e continuar em qualquer aparelho</p>
+  <form id="loginForm" class="form" novalidate>
+    <label for="lu">Usuário</label>
+    <input id="lu" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
+    <label for="lp">Senha</label>
+    <input id="lp" type="password" autocomplete="current-password">
+    <p class="err" id="lerr" role="alert"></p>
+    <div class="btns left"><button class="btn main" type="submit" id="lin">Entrar</button><button class="btn" type="button" id="signup">Criar conta</button></div>
+  </form>
+  <button class="link" id="guest">Jogar sem conta (salva só neste aparelho)</button>
+</section>
+
+<section id="home" hidden>
+  <div class="ubar" id="ubar" hidden><span id="uname"></span><span class="sync" id="sync"></span><button class="link" id="logout"></button></div>
   <h1>Fatos <b>Básicos</b></h1>
   <p class="sub">Treino de contas de 1 dígito contra o relógio</p>
   <div class="tabs" id="tabs" role="group" aria-label="Operação"></div>
@@ -145,6 +168,13 @@ h1 b{color:var(--op)}
 
 </main>
 <script>
+// Configuração do Firebase — cole aqui o bloco do seu projeto. Com null, o app funciona só sem conta.
+window.FIREBASE_CONFIG = null;
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
 {
 const TOTAL=50,TIME=120,PASS=45;
 const OPS={add:{s:'+',n:'Soma'},sub:{s:'−',n:'Subtração'},mul:{s:'×',n:'Multiplicação'},div:{s:'÷',n:'Divisão'}};
@@ -167,10 +197,28 @@ const LV={};for(const o of['add','sub','mul','div'])LV[o]=buildLevels(o);
 let LEVELS=LV.add;
 const $=id=>document.getElementById(id);
 let op='add',free=false,sound=true,data={};
-try{data=JSON.parse(localStorage.getItem('cr-data2')||'{}');free=localStorage.getItem('cr-free')==='1';sound=localStorage.getItem('cr-snd')!=='0';op=localStorage.getItem('cr-op')||'add'}catch(e){}
+try{free=localStorage.getItem('cr-free')==='1';sound=localStorage.getItem('cr-snd')!=='0';op=localStorage.getItem('cr-op')||'add'}catch(e){}
 if(!OPS[op])op='add';
 LEVELS=LV[op];
-const save=()=>{try{localStorage.setItem('cr-data2',JSON.stringify(data));localStorage.setItem('cr-free',free?'1':'0');localStorage.setItem('cr-snd',sound?'1':'0');localStorage.setItem('cr-op',op)}catch(e){}};
+// ---- conta e nuvem ----
+let user=null,guest=false,auth=null,db=null,cloudT=0;
+if(window.firebase&&window.FIREBASE_CONFIG){
+  try{firebase.initializeApp(window.FIREBASE_CONFIG);auth=firebase.auth();db=firebase.firestore()}catch(e){auth=null;db=null}
+}
+const lsKey=()=>user?'cr-u-'+user.uid:'cr-data2';
+function loadLocal(){try{data=JSON.parse(localStorage.getItem(lsKey())||'{}')}catch(e){data={}}}
+const setSync=t=>{const s=$('sync');if(s)s.textContent=t};
+function cloudSave(){
+  if(!user||!db)return;
+  clearTimeout(cloudT);setSync('Salvando…');
+  cloudT=setTimeout(()=>{
+    db.collection('usuarios').doc(user.uid).set({nome:user.name,progresso:data,atualizado:firebase.firestore.FieldValue.serverTimestamp()})
+      .then(()=>setSync('Progresso salvo na nuvem'))
+      .catch(()=>setSync('Sem conexão — será salvo quando a internet voltar'));
+  },400);
+}
+const save=()=>{try{localStorage.setItem(lsKey(),JSON.stringify(data));localStorage.setItem('cr-free',free?'1':'0');localStorage.setItem('cr-snd',sound?'1':'0');localStorage.setItem('cr-op',op)}catch(e){}cloudSave()};
+function merge(a,b){const o={...a};for(const k in b){const x=o[k]||{best:0,pass:false},y=b[k]||{};o[k]={best:Math.max(x.best||0,y.best||0),pass:!!(x.pass||y.pass)}}return o}
 const rec=(o,i)=>data[LV[o][i].key]||{best:0,pass:false};
 const ORDER=['add','sub','mul','div'];
 const opDone=o=>LV[o].every((L,i)=>rec(o,i).pass);
@@ -229,8 +277,8 @@ function beep(f,d,type='sine',v=.12){
 // ---- tela inicial ----
 const LOCK='<svg class="lock" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V8a6 6 0 1 1 12 0v2h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1zm2 0h8V8a4 4 0 1 0-8 0v2z"/></svg>';
 let scrollNext=true;
-function show(id){for(const s of['home','game','result','confirm'])$(s).hidden=s!==id;window.scrollTo(0,0)}
-function renderHome(){
+function show(id){for(const s of['login','home','game','result','confirm'])$(s).hidden=s!==id;window.scrollTo(0,0)}
+var renderHome;renderHome=function(){
   if(!opUnlocked(op))op='add';
   document.body.dataset.op=op;LEVELS=LV[op];
   $('tabs').innerHTML=Object.entries(OPS).map(([k,v])=>{const ul=opUnlocked(k);
@@ -330,7 +378,7 @@ function finish(){
   const used=Math.min(TIME,(performance.now()-G.t0)/1000);
   const unanswered=TOTAL-G.k,pass=G.hits>=PASS,i=G.i;
   const r=rec(op,i);
-  data[op+i]={best:Math.max(r.best,G.hits),pass:r.pass||pass};save();
+  data[LV[op][i].key]={best:Math.max(r.best,G.hits),pass:r.pass||pass};save();
   const st=starsOf(G.hits);
   $('medal').innerHTML=medal(pass,st);
   $('score').innerHTML=`${G.hits}<small>/50</small>`;
@@ -365,7 +413,59 @@ function medal(pass,st){
          :`<text x="75" y="88" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="46" fill="var(--soft)">↻</text>`)+
     star(38,132,1.2,st>=1)+star(75,138,1.4,st>=2)+star(112,132,1.2,st>=3);
 }
-renderHome();
+// ---- entrar / criar conta ----
+const ERR={'auth/email-already-in-use':'Esse usuário já existe. Escolha outro nome.','auth/invalid-credential':'Usuário ou senha incorretos.','auth/invalid-login-credentials':'Usuário ou senha incorretos.','auth/wrong-password':'Usuário ou senha incorretos.','auth/user-not-found':'Usuário ou senha incorretos.','auth/network-request-failed':'Sem internet. Verifique a conexão.','auth/too-many-requests':'Muitas tentativas. Espere um pouco e tente de novo.','auth/weak-password':'A senha precisa ter pelo menos 6 caracteres.','auth/operation-not-allowed':'O login com senha ainda não foi ativado no Firebase.'};
+const lerr=t=>{$('lerr').textContent=t};
+async function doAuth(mode){
+  const u=$('lu').value.trim().toLowerCase(),p=$('lp').value;
+  if(!/^[a-z0-9._-]{3,20}$/.test(u))return lerr('Usuário: de 3 a 20 letras ou números, sem espaços nem acentos.');
+  if(p.length<6)return lerr('A senha precisa ter pelo menos 6 caracteres.');
+  lerr('');$('lin').disabled=$('signup').disabled=true;
+  try{
+    const em=u+'@fatosbasicos.app';
+    if(mode==='up')await auth.createUserWithEmailAndPassword(em,p);else await auth.signInWithEmailAndPassword(em,p);
+    $('lp').value='';
+  }catch(e){lerr(ERR[e.code]||('Não deu certo ('+(e.code||e.message)+').'))}
+  $('lin').disabled=$('signup').disabled=false;
+}
+$('loginForm').addEventListener('submit',e=>{e.preventDefault();doAuth('in')});
+$('signup').addEventListener('click',()=>doAuth('up'));
+$('guest').addEventListener('click',()=>{guest=true;user=null;loadLocal();scrollNext=true;renderHome();show('home')});
+$('logout').addEventListener('click',()=>{
+  if(user){auth.signOut()}else{guest=false;show('login')}
+});
+function renderUser(){
+  $('ubar').hidden=!auth;
+  if(!auth)return;
+  $('uname').textContent=user?'Olá, '+user.name+'!':'Jogando sem conta';
+  if(!user)setSync('O progresso fica só neste aparelho');
+  $('logout').textContent=user?'Sair':'Entrar';
+}
+const _render=renderHome;
+renderHome=function(){_render();renderUser()};
+
+if(auth){
+  show('login');
+  auth.onAuthStateChanged(async u=>{
+    if(u){
+      guest=false;user={uid:u.uid,name:(u.email||'').split('@')[0]};
+      loadLocal();scrollNext=true;renderHome();show('home');setSync('Carregando progresso…');
+      try{
+        const snap=await db.collection('usuarios').doc(u.uid).get();
+        const cloud=snap.exists?(snap.data().progresso||{}):{};
+        const before=JSON.stringify(cloud);
+        data=merge(data,cloud);
+        if(JSON.stringify(data)!==before)save();else{try{localStorage.setItem(lsKey(),JSON.stringify(data))}catch(e){}setSync('Progresso salvo na nuvem')}
+        if(!$('home').hidden){scrollNext=true;renderHome()}
+      }catch(e){setSync('Sem conexão — usando o progresso deste aparelho')}
+    }else{
+      user=null;if(G){G.over=true;clearTimeout(G.timer)}
+      if(!guest)show('login');
+    }
+  });
+}else{
+  guest=true;loadLocal();renderHome();show('home');
+}
 }
 </script>
 </body>
