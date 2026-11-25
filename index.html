@@ -324,7 +324,7 @@ h1{font-size:clamp(28px,4.4vw,40px);line-height:1.12;letter-spacing:-.025em;marg
     <div class="clock" id="clock">2:00</div>
   </div>
   <div class="tline" id="tline" aria-hidden="true"></div>
-  <div class="stats"><span>Conta <b id="qn">0</b> de 50</span><span>Acertos <b id="hits">0</b></span><span>Meta <b>45</b></span></div>
+  <div class="stats"><span>Conta <b id="qn">0</b> de <span id="qT">50</span></span><span>Acertos <b id="hits">0</b></span><span>Meta <b id="gMeta">45</b></span></div>
   <div class="q" id="qbox"><div class="expr" id="expr"></div></div>
   <div class="ans" id="ans"></div>
 </section>
@@ -389,6 +389,11 @@ window.FIREBASE_CONFIG = {
 {
 // ================= dados do jogo =================
 const TOTAL=50,TIME=120,PASS=45;
+// Nivelamento = último nível da operação: todos os dígitos, intercalado com as operações anteriores
+const PLACE={add:{n:50,time:120,comp:{add:50}},sub:{n:60,time:150,comp:{add:20,sub:40}},
+  mul:{n:80,time:180,comp:{add:20,sub:20,mul:40}},div:{n:100,time:240,comp:{add:20,sub:20,mul:20,div:40}}};
+const metaOf=n=>Math.ceil(n*.9);
+const fmtT=s=>`${s/60|0}:${String(Math.round(s%60)).padStart(2,'0')}`;
 const OPS={add:{s:'+',n:'Soma'},sub:{s:'−',n:'Subtração'},mul:{s:'×',n:'Multiplicação'},div:{s:'÷',n:'Divisão'}};
 const VERB={add:'Somas',sub:'Subtrações',mul:'Multiplicações',div:'Divisões'};
 const ORDER=['add','sub','mul','div'];
@@ -421,7 +426,13 @@ function buildLevels(o){
   }
   return out;
 }
-const LV={};for(const o of ORDER)LV[o]=buildLevels(o);
+const LV={};for(const o of ORDER){
+  LV[o]=buildLevels(o);
+  const last=LV[o][LV[o].length-1];
+  LV[o].forEach(L=>{L.n=TOTAL;L.time=TIME});
+  for(const L of [LV[o][0],last]){L.n=PLACE[o].n;L.time=PLACE[o].time;L.comp=PLACE[o].comp}
+  LV[o].forEach(L=>{L.meta=metaOf(L.n)});
+}
 const TOTAL_LV=ORDER.reduce((n,o)=>n+LV[o].length,0);
 const $=id=>document.getElementById(id);
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -461,7 +472,7 @@ const cleared=o=>clearedP(data,o);
 const opDone=o=>opDoneP(data,o);
 const opUnlocked=o=>{const k=ORDER.indexOf(o);return free||k===0||cleared(ORDER[k-1])};
 const unlocked=(o,i)=>free||(opUnlocked(o)&&(i<=1||rec(o,i).pass||rec(o,i-1).pass));
-const starsOf=b=>b>=50?3:b>=48?2:b>=PASS?1:0;
+const starsOf=(b,n=TOTAL)=>b>=n?3:b>=Math.ceil(n*.96)?2:b>=metaOf(n)?1:0;
 function nextLevel(){
   for(const o of ORDER){
     if(!opUnlocked(o))break;
@@ -501,7 +512,12 @@ const DIG=o=>o==='div'?[1,2,3,4,5,6,7,8,9]:[0,1,2,3,4,5,6,7,8,9];
 function buildRound(o,L){
   const main=facts(o,L.set).map(f=>({...f,o}));
   let list;
-  if(!L.mix)list=fill(main,TOTAL);
+  if(L.comp){
+    list=[];for(const p in L.comp)list.push(...fill(facts(p,DIG(p)).map(f=>({...f,o:p})),L.comp[p]));
+    shuffle(list);
+    for(let k=1;k<list.length;k++)if(list[k].o===list[k-1].o&&list[k].a===list[k-1].a&&list[k].b===list[k-1].b){const j=(k+2)%list.length;[list[k],list[j]]=[list[j],list[k]]}
+  }
+  else if(!L.mix)list=fill(main,TOTAL);
   else{
     const prev=ORDER.slice(0,ORDER.indexOf(o)),nMain=TOTAL/2,rest=TOTAL-nMain;
     list=fill(main,nMain);
@@ -672,10 +688,10 @@ function renderLevels(){
   const cards=LEVELS.map((L,i)=>{
     const r=rec(op,i),ul=unlocked(op,i);if(r.pass)done++;
     if(nextI<0&&ul&&!r.pass)nextI=i;
-    const st=starsOf(r.best),set=L.set,run=set.length>2;
+    const st=starsOf(r.best,L.n),set=L.set,run=set.length>2;
     const lab=L.nv?'todos<small>nivelamento</small>':L.mix?`${set.length===1?set[0]:set[0]+' a '+set[set.length-1]}<small>${MIXS[op]}</small>`:L.t==='Todos os dígitos'?'todos':set.length===1?String(set[0]):run?`${set[0]} a ${set[set.length-1]}`:`${set[0]} ou ${set[1]}`;
-    const status=r.pass?`<span class="stars" aria-hidden="true">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span>`:r.best?`${r.best}/50`:ul?(i===nextI?'jogar':''):LOCK;
-    const aria=`Nível ${i+1}: ${L.t}. `+(r.pass?`Vencido, ${r.best} de 50.`:r.best?`Melhor resultado ${r.best} de 50.`:ul?'Liberado.':'Bloqueado.');
+    const status=r.pass?`<span class="stars" aria-hidden="true">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span>`:r.best?`${r.best}/${L.n}`:ul?(i===nextI?'jogar':''):LOCK;
+    const aria=`Nível ${i+1}: ${L.t}. `+(r.pass?`Vencido, ${r.best} de ${L.n}.`:r.best?`Melhor resultado ${r.best} de ${L.n}.`:ul?'Liberado.':'Bloqueado.');
     return `<button class="lv${r.pass?' done':''}${i===nextI?' next':''}" data-i="${i}" ${ul?'':'disabled'} aria-label="${aria}" title="${aria}"><span class="disc${set.length===1&&!L.mix?' one':''}">${lab}</span><span class="st">${status}</span></button>`;
   });
   const digits=[...new Set(LEVELS.map(L=>L.d))];
@@ -705,9 +721,9 @@ $('cYes').addEventListener('click',()=>{data={};save();if(guest)try{localStorage
 let G=null,raf=0;
 function start(i){
   const L=LEVELS[i];
-  G={i,q:buildRound(op,L),k:0,hits:0,wrong:[],log:[],t0:0,qt:0,lock:true,over:false,timer:0};
-  $('gTitle').innerHTML=`${VERB[op]}: ${esc(L.t)}<small>Nível ${i+1} de ${LEVELS.length}</small>`;
-  $('qn').textContent='0';$('hits').textContent='0';$('clock').textContent='2:00';$('clock').classList.remove('low');
+  G={i,n:L.n,time:L.time,pass:L.meta,q:buildRound(op,L),k:0,hits:0,wrong:[],log:[],t0:0,qt:0,lock:true,over:false,timer:0};
+  $('gTitle').innerHTML=`${VERB[op]}: ${esc(L.t)}<small>Nível ${i+1} de ${LEVELS.length}${L.n!==TOTAL?` · ${L.n} contas em ${fmtT(L.time).replace(':00',' min').replace(':30',' min e meio')}`:''}</small>`;
+  $('qn').textContent='0';$('hits').textContent='0';$('clock').textContent=fmtT(L.time);$('qT').textContent=L.n;$('gMeta').textContent=L.meta;$('clock').classList.remove('low');
   $('tline').style.setProperty('--p',1);$('tline').classList.remove('low');
   $('ans').innerHTML=[0,1,2,3].map(n=>`<button class="a" data-n="${n}" disabled><kbd>${n+1}</kbd>&nbsp;</button>`).join('');
   show('s-game');
@@ -721,10 +737,10 @@ function start(i){
 }
 function tick(){
   if(!G||G.over)return;
-  const left=Math.max(0,TIME-(performance.now()-G.t0)/1000),s=Math.ceil(left);
+  const left=Math.max(0,G.time-(performance.now()-G.t0)/1000),s=Math.ceil(left);
   $('clock').textContent=`${s/60|0}:${String(s%60).padStart(2,'0')}`;
   $('clock').classList.toggle('low',left<=15);
-  $('tline').style.setProperty('--p',left/TIME);$('tline').classList.toggle('low',left<=15);
+  $('tline').style.setProperty('--p',left/G.time);$('tline').classList.toggle('low',left<=15);
   if(left<=0){finish();return}
   raf=requestAnimationFrame(tick);
 }
@@ -745,7 +761,7 @@ function answer(n){
   if(v===q.r){G.hits++;btns[n].classList.add('ok');beep(988,.09,'triangle')}
   else{G.wrong.push({...q,v});btns[n].classList.add('bad');btns[q.opts.indexOf(q.r)].classList.add('ok');beep(180,.18,'square',.06);wait=650}
   $('hits').textContent=G.hits;G.k++;
-  const g=G;g.timer=setTimeout(()=>{if(g.over)return;if(g.k>=TOTAL)finish();else ask()},wait);
+  const g=G;g.timer=setTimeout(()=>{if(g.over)return;if(g.k>=g.n)finish();else ask()},wait);
 }
 $('ans').addEventListener('click',e=>{const b=e.target.closest('.a');if(b)answer(+b.dataset.n)});
 document.addEventListener('keydown',e=>{if(cur!=='s-game')return;if(e.key>='1'&&e.key<='4')answer(+e.key-1);if(e.key==='Escape')quit()});
@@ -755,24 +771,24 @@ let lastResult=0;
 function finish(){
   if(!G||G.over)return;
   G.over=true;clearTimeout(G.timer);cancelAnimationFrame(raf);
-  const used=Math.min(TIME,(performance.now()-G.t0)/1000),unanswered=TOTAL-G.k,pass=G.hits>=PASS,i=G.i,L=LV[op][i];
+  const used=Math.min(G.time,(performance.now()-G.t0)/1000),unanswered=G.n-G.k,pass=G.hits>=G.pass,i=G.i,L=LV[op][i];
   const r=rec(op,i);
   data[L.key]={best:Math.max(r.best,G.hits),pass:r.pass||pass};save();
-  const ses={op,nivel:i+1,chave:L.key,nome:L.t,acertos:G.hits,respondidas:G.k,tempo:Math.round(used),passou:pass,
+  const ses={op,nivel:i+1,chave:L.key,nome:L.t,acertos:G.hits,respondidas:G.k,total:G.n,meta:G.pass,tempo:Math.round(used),passou:pass,
     erros:G.wrong.map(w=>w.o===op?{a:w.a,b:w.b,r:w.r,v:w.v}:{o:w.o,a:w.a,b:w.b,r:w.r,v:w.v}),qs:G.log};
   if(user&&db)db.collection('usuarios').doc(user.uid).collection('sessoes').add({...ses,data:firebase.firestore.FieldValue.serverTimestamp()}).catch(()=>{});
   else pushLocalSession({...ses,data:Date.now()});
-  $('medal').innerHTML=medal(pass,G.hits);
+  $('medal').innerHTML=medal(pass,G.hits,G.n,G.pass);
   const ts=`${used/60|0}:${String(Math.round(used%60)).padStart(2,'0')}`;
   let m;
-  if(pass)m=i<LEVELS.length-1?`Parabéns! Você acertou ${Math.round(G.hits/TOTAL*100)}% em ${ts}. O nível ${i+2} foi liberado!`:`Incrível! Você completou o último nível de ${OPS[op].n.toLowerCase()}!`+
+  if(pass)m=i<LEVELS.length-1?`Parabéns! Você acertou ${Math.round(G.hits/G.n*100)}% em ${ts}. O nível ${i+2} foi liberado!`:`Incrível! Você completou o último nível de ${OPS[op].n.toLowerCase()}!`+
       (ORDER[ORDER.indexOf(op)+1]&&cleared(op)?` Agora a ${OPS[ORDER[ORDER.indexOf(op)+1]].n.toLowerCase()} está liberada.`:'');
-  else if(unanswered>0)m=`O tempo acabou com ${unanswered} conta${unanswered>1?'s':''} sem resposta. Você precisa de 45 acertos e faltaram ${PASS-G.hits}. Tente de novo!`;
-  else m=`Você respondeu tudo em ${ts}, mas precisa de 45 acertos e faltaram ${PASS-G.hits}. Quase lá!`;
+  else if(unanswered>0)m=`O tempo acabou com ${unanswered} conta${unanswered>1?'s':''} sem resposta. Você precisa de ${G.pass} acertos e faltaram ${G.pass-G.hits}. Tente de novo!`;
+  else m=`Você respondeu tudo em ${ts}, mas precisa de ${G.pass} acertos e faltaram ${G.pass-G.hits}. Quase lá!`;
   const nxo=ORDER[ORDER.indexOf(op)+1];
   if(L.nv){
     if(pass)m=nxo?`Nivelamento aprovado com ${G.hits} acertos! Você pode pular direto para a ${OPS[nxo].n.toLowerCase()}.`:`Nivelamento aprovado com ${G.hits} acertos! Você já domina a divisão.`;
-    else m=`Você fez ${G.hits} acertos. Para pular a ${OPS[op].n.toLowerCase()} é preciso fazer 45. Vamos treinar nível por nível, começando por “${LV[op][1].t}”.`;
+    else m=`Você fez ${G.hits} acertos. Para pular a ${OPS[op].n.toLowerCase()} é preciso fazer ${G.pass}. Vamos treinar nível por nível, começando por “${LV[op][1].t}”.`;
   }
   $('msg').textContent=m;
   if(L.nv)$('rbtns').innerHTML=(pass?(nxo?`<button class="btn op" data-a="goop" data-o="${nxo}">Ir para a ${OPS[nxo].n.toLowerCase()}</button>`:''):`<button class="btn op" data-a="next">Começar o treino</button>`)+
@@ -794,14 +810,14 @@ $('rbtns').addEventListener('click',e=>{
   if(a==='goop'){op=bt.dataset.o;save();scrollNext=true;renderLevels();show('s-niveis','replace');return}
   if(a==='next')start(lastResult+1);else if(a==='again')start(lastResult);else{scrollNext=true;renderLevels();show('s-niveis','replace')}
 });
-function medal(pass,hits){
-  const r=62,c=2*Math.PI*r,f=hits/TOTAL,col=pass?'var(--op)':'var(--soft)';
-  const goal=PASS/TOTAL*360-90,gx=75+r*Math.cos(goal*Math.PI/180),gy=75+r*Math.sin(goal*Math.PI/180);
+function medal(pass,hits,n,meta){
+  const r=62,c=2*Math.PI*r,f=hits/n,col=pass?'var(--op)':'var(--soft)';
+  const goal=meta/n*360-90,gx=75+r*Math.cos(goal*Math.PI/180),gy=75+r*Math.sin(goal*Math.PI/180);
   return `<circle cx="75" cy="75" r="${r}" fill="none" stroke="var(--surf2)" stroke-width="8"/>`+
     `<circle cx="75" cy="75" r="${r}" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(c*f).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 75 75)"/>`+
     `<circle cx="${gx.toFixed(1)}" cy="${gy.toFixed(1)}" r="4" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/>`+
     `<text x="75" y="80" text-anchor="middle" font-family="Manrope,sans-serif" font-weight="800" font-size="42" fill="var(--ink)">${hits}</text>`+
-    `<text x="75" y="103" text-anchor="middle" font-family="Manrope,sans-serif" font-weight="600" font-size="13" fill="var(--soft)">de 50</text>`;
+    `<text x="75" y="103" text-anchor="middle" font-family="Manrope,sans-serif" font-weight="600" font-size="13" fill="var(--soft)">de ${n}</text>`;
 }
 
 // ================= alunos do responsável =================
@@ -909,7 +925,7 @@ function renderReport(){
   }
   // gráfico + progresso
   h+=`<div class="rgrid two">
-    <div class="panel"><h2 class="h2">Acertos por partida <small>últimas ${Math.min(30,N)}, meta de 45</small></h2><div class="fig" id="chart"><svg></svg></div>
+    <div class="panel"><h2 class="h2">Acertos por partida <small>em %, últimas ${Math.min(30,N)}, meta de 90%</small></h2><div class="fig" id="chart"><svg></svg></div>
       <div class="legend"><span><i style="background:var(--op)"></i>Passou</span><span><i style="background:var(--surf2)"></i>Não passou</span><span><i style="background:var(--ink);height:2px;vertical-align:3px"></i>Meta</span></div></div>
     <div class="panel"><h2 class="h2">Progresso por operação</h2><div class="opbars">${ORDER.map(o=>`<div class="opb" style="--c:${OPCOL[o]}"><div class="t">${OPS[o].n}<span>${sm.per[o]} de ${LV[o].length}</span></div><div class="bar"><i style="width:${sm.per[o]/LV[o].length*100}%"></i></div></div>`).join('')}</div>
       <p class="note">Partidas com aprovação: <b>${passN}</b> de ${N}.</p></div>
@@ -952,11 +968,11 @@ function renderReport(){
 function histRow(x,k){
   const t=x.tempo||0,o=OPS[x.op]||{n:x.op,s:'?'};
   let h=`<button class="hrow" data-k="${k}" aria-expanded="${REP.open===k}"><span class="l"><b>${esc(o.n)}: ${esc(x.nome)}</b><span>${when(x.data)} · nível ${esc(x.nivel)} · ${t/60|0}:${String(t%60).padStart(2,'0')}</span></span>
-    <span class="r"><b>${esc(x.acertos)}/50</b><span class="${x.passou?'pass':'fail'}">${x.passou?'Passou':'Não passou'}</span></span></button>`;
+    <span class="r"><b>${esc(x.acertos)}/${esc(x.total||50)}</b><span class="${x.passou?'pass':'fail'}">${x.passou?'Passou':'Não passou'}</span></span></button>`;
   if(REP.open===k){
     const qs=x.qs||[];
     h+=`<div class="hdet">${qs.length?`<div class="chips">${qs.map(q=>{const qs2=q.o?OPS[q.o].s:o.s;return q.v===q.r?`<span class="qc" title="${fmtS(q.ms||0)}">${q.a} ${qs2} ${q.b} = ${q.r}</span>`:`<span class="qc bad" title="Respondeu ${q.v} · ${fmtS(q.ms||0)}">${q.a} ${qs2} ${q.b} = <s>${q.v}</s>${q.r}</span>`}).join('')}</div>
-      ${qs.length<50?`<p class="note">${50-qs.length} conta${50-qs.length>1?'s':''} ficaram sem resposta quando o tempo acabou.</p>`:''}`
+      ${qs.length<(x.total||50)?`<p class="note">${(x.total||50)-qs.length} conta${(x.total||50)-qs.length>1?'s':''} ficaram sem resposta quando o tempo acabou.</p>`:''}`
       :`<p class="note" style="margin:0">Partida antiga: só os erros foram registrados.</p>${(x.erros||[]).length?`<div class="chips" style="margin-top:8px">${x.erros.map(w=>`<span class="qc bad">${w.a} ${w.o?OPS[w.o].s:o.s} ${w.b} = <s>${w.v}</s>${w.r}</span>`).join('')}</div>`:''}`}</div>`;
   }
   return h;
@@ -976,12 +992,12 @@ function drawChart(rows){
   const draw=()=>{
     const W=box.clientWidth,H=box.clientHeight,pl=26,pr=6,pt=8,pb=22,iw=W-pl-pr,ih=H-pt-pb,n=rows.length;
     if(W<10)return;
-    const y=v=>pt+ih-(v/50)*ih,bw=Math.max(3,Math.min(26,iw/n*.7)),step=iw/n;
+    const y=v=>pt+ih-(v/100)*ih,bw=Math.max(3,Math.min(26,iw/n*.7)),step=iw/n;
     let g='';
-    [0,25,50].forEach(v=>{g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--soft)">${v}</text>`});
-    rows.forEach((x,i)=>{const cx=pl+step*i+step/2,v=x.acertos||0;
-      g+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(pt+ih-y(v)).toFixed(1)}" rx="3" fill="${x.passou?'var(--op)':'var(--surf2)'}"><title>${when(x.data)} · ${esc((OPS[x.op]||{}).n||'')} ${esc(x.nome)}: ${v}/50</title></rect>`});
-    g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(45)}" y2="${y(45)}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+    [0,50,100].forEach(v=>{g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--soft)">${v}</text>`});
+    rows.forEach((x,i)=>{const cx=pl+step*i+step/2,tot=x.total||50,v=Math.round((x.acertos||0)/tot*100);
+      g+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(pt+ih-y(v)).toFixed(1)}" rx="3" fill="${x.passou?'var(--op)':'var(--surf2)'}"><title>${when(x.data)} · ${esc((OPS[x.op]||{}).n||'')} ${esc(x.nome)}: ${x.acertos}/${tot}</title></rect>`});
+    g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(90)}" y2="${y(90)}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
     if(n){g+=`<text x="${pl}" y="${H-4}" font-size="11" fill="var(--soft)">${when(rows[0].data).split(',')[0]}</text><text x="${W-pr}" y="${H-4}" font-size="11" fill="var(--soft)" text-anchor="end">${when(rows[n-1].data).split(',')[0]}</text>`}
     s.innerHTML=g;
   };
