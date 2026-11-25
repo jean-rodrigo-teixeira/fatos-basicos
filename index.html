@@ -121,7 +121,10 @@ h1{font-size:clamp(28px,4.4vw,40px);line-height:1.12;letter-spacing:-.025em;marg
 .disc.one{font-size:22px}
 .disc small{display:block;font-size:12px;font-weight:600;color:var(--soft);margin-top:2px}
 .lv .st{font-size:12px;font-weight:600;color:var(--soft);display:flex;align-items:center;gap:4px;min-height:16px}
-.stars{color:var(--op);letter-spacing:1px}
+.stars{color:var(--op);letter-spacing:0;font-size:12px;white-space:nowrap}
+.stars.low{color:var(--soft)}
+.rstars{font-size:30px;letter-spacing:4px;color:var(--op);margin:-4px 0 6px}
+.rstars.low{color:var(--soft)}
 .lv.done{background:var(--opbg)}.lv.done .disc{color:var(--op)}
 .lv.next{background:var(--bg);border-color:var(--op);box-shadow:inset 0 0 0 1px var(--op)}
 .lv.next .st{color:var(--op)}
@@ -332,6 +335,7 @@ h1{font-size:clamp(28px,4.4vw,40px);line-height:1.12;letter-spacing:-.025em;marg
 <!-- resultado -->
 <section id="s-result" class="res mid" hidden>
   <svg class="medal" id="medal" viewBox="0 0 150 150" aria-hidden="true"></svg>
+  <div class="rstars" id="rstars"></div>
   <p class="msg" id="msg"></p>
   <div class="btns c" id="rbtns"></div>
   <div class="card errs" id="errs" hidden><h2 class="h2">Contas para treinar</h2><ul id="errList"></ul></div>
@@ -471,8 +475,11 @@ const clearedP=(prog,o)=>opDoneP(prog,o)||!!(prog[o+':nv']&&prog[o+':nv'].pass);
 const cleared=o=>clearedP(data,o);
 const opDone=o=>opDoneP(data,o);
 const opUnlocked=o=>{const k=ORDER.indexOf(o);return free||k===0||cleared(ORDER[k-1])};
-const unlocked=(o,i)=>free||(opUnlocked(o)&&(i<=1||rec(o,i).pass||rec(o,i-1).pass));
-const starsOf=(b,n=TOTAL)=>b>=n?3:b>=Math.ceil(n*.96)?2:b>=metaOf(n)?1:0;
+const nvPassed=o=>!!(data[o+':nv']&&data[o+':nv'].pass);
+const unlocked=(o,i)=>free||(opUnlocked(o)&&(i<=1||nvPassed(o)||rec(o,i).pass||rec(o,i-1).pass));
+// estrelas pelo melhor resultado: 100% = 5, 90% = 4 (passa), 60% = 3, 30% = 2, jogou = 1
+const starsOf=(b,n=TOTAL)=>b>=n?5:b>=metaOf(n)?4:b>=Math.ceil(n*.6)?3:b>=Math.ceil(n*.3)?2:1;
+const starStr=k=>'★'.repeat(k)+'☆'.repeat(5-k);
 function nextLevel(){
   for(const o of ORDER){
     if(!opUnlocked(o))break;
@@ -690,15 +697,16 @@ function renderLevels(){
     if(nextI<0&&ul&&!r.pass)nextI=i;
     const st=starsOf(r.best,L.n),set=L.set,run=set.length>2;
     const lab=L.nv?'todos<small>nivelamento</small>':L.mix?`${set.length===1?set[0]:set[0]+' a '+set[set.length-1]}<small>${MIXS[op]}</small>`:L.t==='Todos os dígitos'?'todos':set.length===1?String(set[0]):run?`${set[0]} a ${set[set.length-1]}`:`${set[0]} ou ${set[1]}`;
-    const status=r.pass?`<span class="stars" aria-hidden="true">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span>`:r.best?`${r.best}/${L.n}`:ul?(i===nextI?'jogar':''):LOCK;
-    const aria=`Nível ${i+1}: ${L.t}. `+(r.pass?`Vencido, ${r.best} de ${L.n}.`:r.best?`Melhor resultado ${r.best} de ${L.n}.`:ul?'Liberado.':'Bloqueado.');
+    const tried=L.key in data;
+    const status=tried?`<span class="stars${r.pass?'':' low'}" aria-hidden="true">${starStr(st)}</span>`:ul?(i===nextI?'jogar':''):LOCK;
+    const aria=`Nível ${i+1}: ${L.t}. `+(tried?`${st} de 5 estrelas, melhor resultado ${r.best} de ${L.n}${r.pass?', vencido':''}.`:ul?'Liberado.':'Bloqueado.');
     return `<button class="lv${r.pass?' done':''}${i===nextI?' next':''}" data-i="${i}" ${ul?'':'disabled'} aria-label="${aria}" title="${aria}"><span class="disc${set.length===1&&!L.mix?' one':''}">${lab}</span><span class="st">${status}</span></button>`;
   });
   const digits=[...new Set(LEVELS.map(L=>L.d))];
   $('levels').innerHTML=digits.map(d=>{
     const idx=LEVELS.map((L,i)=>L.d===d?i:-1).filter(i=>i>=0);
     const ok=idx.filter(i=>rec(op,i).pass).length;
-    if(d==='nv')return `<section class="grp"><div class="gh"><h3>Nivelamento</h3><small>45 acertos liberam a próxima</small></div><div class="dots">${idx.map(i=>cards[i]).join('')}</div></section>`;
+    if(d==='nv')return `<section class="grp"><div class="gh"><h3>Nivelamento</h3><small>90% libera todos os níveis</small></div><div class="dots">${idx.map(i=>cards[i]).join('')}</div></section>`;
     return `<section class="grp"><div class="gh"><h3>Dígito ${d}</h3><small>${ok} de ${idx.length}</small></div><div class="dots">${idx.map(i=>cards[i]).join('')}</div></section>`;
   }).join('');
   $('progTxt').textContent=`${done} de ${LEVELS.length} níveis`;
@@ -779,6 +787,7 @@ function finish(){
   if(user&&db)db.collection('usuarios').doc(user.uid).collection('sessoes').add({...ses,data:firebase.firestore.FieldValue.serverTimestamp()}).catch(()=>{});
   else pushLocalSession({...ses,data:Date.now()});
   $('medal').innerHTML=medal(pass,G.hits,G.n,G.pass);
+  {const k=starsOf(G.hits,G.n);$('rstars').textContent=starStr(k);$('rstars').className='rstars'+(pass?'':' low');$('rstars').setAttribute('aria-label',k+' de 5 estrelas')}
   const ts=`${used/60|0}:${String(Math.round(used%60)).padStart(2,'0')}`;
   let m;
   if(pass)m=i<LEVELS.length-1?`Parabéns! Você acertou ${Math.round(G.hits/G.n*100)}% em ${ts}. O nível ${i+2} foi liberado!`:`Incrível! Você completou o último nível de ${OPS[op].n.toLowerCase()}!`+
@@ -787,7 +796,7 @@ function finish(){
   else m=`Você respondeu tudo em ${ts}, mas precisa de ${G.pass} acertos e faltaram ${G.pass-G.hits}. Quase lá!`;
   const nxo=ORDER[ORDER.indexOf(op)+1];
   if(L.nv){
-    if(pass)m=nxo?`Nivelamento aprovado com ${G.hits} acertos! Você pode pular direto para a ${OPS[nxo].n.toLowerCase()}.`:`Nivelamento aprovado com ${G.hits} acertos! Você já domina a divisão.`;
+    if(pass)m=nxo?`Nivelamento aprovado com ${G.hits} acertos! Todos os níveis de ${OPS[op].n.toLowerCase()} foram liberados, e você pode pular direto para a ${OPS[nxo].n.toLowerCase()}.`:`Nivelamento aprovado com ${G.hits} acertos! Você já domina a divisão.`;
     else m=`Você fez ${G.hits} acertos. Para pular a ${OPS[op].n.toLowerCase()} é preciso fazer ${G.pass}. Vamos treinar nível por nível, começando por “${LV[op][1].t}”.`;
   }
   $('msg').textContent=m;
