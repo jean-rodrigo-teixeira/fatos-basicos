@@ -10,13 +10,14 @@
 <style>
 /* VOICE: calmo e preciso — uma ferramenta de treino, não um brinquedo
    IDEA: um cronômetro de mesa: número grande, um traço de tempo, nada sobrando
-   PICTURE: no jogo, a conta enorme no centro e uma linha fina de tempo; em casa, a grade de níveis
+   PICTURE: no jogo, a conta enorme no centro; no relatório, o gráfico de acertos e o mapa dos fatos
    COLOUR and TYPE: neutros frios em claro e escuro, uma cor por operação usada só como acento; Manrope em tudo
-   LAYOUT: coluna única de até 760px, alinhada à esquerda; jogo centrado */
+   LAYOUT: fluxo guiado em coluna estreita; no computador, escolhas lado a lado e relatório em duas colunas */
 :root{color-scheme:light dark;
-  --bg:light-dark(#ffffff,#0f1115);--surf:light-dark(#f4f5f7,#171a20);--surf2:light-dark(#eceef2,#1f232b);
-  --ink:light-dark(#14161b,#eceef2);--soft:light-dark(#6a7080,#8d94a5);--line:light-dark(#e3e6eb,#272b34);
-  --ok:light-dark(#15803d,#4ade80);--bad:light-dark(#dc2626,#f87171);
+  --bg:light-dark(#ffffff,#0f1115);--surf:light-dark(#f4f5f7,#171a20);--surf2:light-dark(#e9ebef,#222630);
+  --ink:light-dark(#14161b,#eceef2);--soft:light-dark(#646b7b,#8d94a5);--line:light-dark(#e3e6eb,#272b34);
+  --ok:light-dark(#15803d,#4ade80);--okbg:light-dark(#dcfce7,#12301d);--bad:light-dark(#dc2626,#f87171);--badbg:light-dark(#fee2e2,#3a1717);
+  --mid:light-dark(#b45309,#fbbf24);--midbg:light-dark(#fef3c7,#3a2e10);
   --op:light-dark(#2f5bea,#7c9cff);--opbg:light-dark(#eef2fe,#1a2240)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 body[data-op=sub]{--op:light-dark(#c2410c,#fb923c);--opbg:light-dark(#fff3ec,#2a1c12)}
@@ -24,259 +25,353 @@ body[data-op=mul]{--op:light-dark(#0f766e,#2dd4bf);--opbg:light-dark(#ebf8f6,#10
 body[data-op=div]{--op:light-dark(#7c3aed,#b197fc);--opbg:light-dark(#f4effe,#211a35)}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:16px/1.55 Manrope,system-ui,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased}
-button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-align:inherit}
 button:focus-visible,input:focus-visible{outline:2px solid var(--op);outline-offset:2px}
-.wrap{max-width:760px;margin:0 auto;padding:20px max(4vw,16px) 56px}
-.f{font-weight:700}
+.wrap{max-width:1120px;margin:0 auto;padding:14px max(4vw,16px) 64px}
+.narrow{max-width:520px;margin:0 auto}
+.mid{max-width:860px;margin:0 auto}
+[hidden]{display:none!important}
 /* barra superior */
-.topbar{display:flex;align-items:center;gap:12px;min-height:48px;margin-bottom:28px}
-.brand{font-weight:800;font-size:17px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;flex:1}
-.brand i{width:22px;height:22px;border-radius:7px;background:var(--ink);display:grid;place-items:center;color:var(--bg);font:800 14px/1 Manrope,sans-serif;font-style:normal}
-.ubar{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--soft);font-weight:600}
+.topbar{display:flex;align-items:center;gap:12px;min-height:52px;margin-bottom:clamp(18px,4vh,40px)}
+.brand{font-weight:800;font-size:17px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;margin-right:auto}
+.brand i{width:24px;height:24px;border-radius:7px;background:var(--ink);display:grid;place-items:center;color:var(--bg);font:800 15px/1 Manrope,sans-serif;font-style:normal}
+.ubar{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--soft);font-weight:600}
 .ubar b{color:var(--ink)}
-.sync{font-size:13px}
-.icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line);color:var(--ink)}
+.icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line);color:var(--ink);flex:none}
 .icon:hover{background:var(--surf)}
 .icon svg{width:18px;height:18px}
-.mast h1,.logo{font-size:clamp(30px,5vw,40px);line-height:1.1;letter-spacing:-.025em;margin:0;font-weight:800}
-.tag{margin:8px 0 0;color:var(--soft);font-size:16px}
-.mast{margin-bottom:26px}
+/* títulos */
+h1{font-size:clamp(28px,4.4vw,40px);line-height:1.12;letter-spacing:-.025em;margin:0;font-weight:800;text-wrap:balance}
+.lead{margin:10px 0 0;color:var(--soft);font-size:17px;max-width:36em}
+.head{margin-bottom:26px}
+.h2{font-size:17px;font-weight:700;margin:0 0 12px}
+.back{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--soft);font-weight:600;font-size:15px;margin-bottom:6px}
+.back:hover{color:var(--ink)}
+.steps{display:flex;gap:6px;margin-bottom:18px}
+.steps i{height:4px;width:28px;border-radius:4px;background:var(--surf2)}
+.steps i.on{background:var(--op)}
+/* escolhas */
+.choices{display:grid;gap:12px}
+.choice{display:flex;align-items:center;gap:16px;padding:18px 18px;border:1px solid var(--line);border-radius:16px;background:var(--bg);min-height:84px;width:100%;transition:border-color .12s,background .12s}
+.choice:hover{border-color:var(--op);background:var(--surf)}
+.choice .ic{width:48px;height:48px;border-radius:14px;background:var(--opbg);color:var(--op);display:grid;place-items:center;flex:none}
+.choice .ic svg{width:24px;height:24px}
+.choice .tx{display:flex;flex-direction:column;gap:2px;flex:1}
+.choice b{font-size:18px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.choice .tx>span{color:var(--soft);font-size:14px;line-height:1.4}
+.choice .chev{color:var(--soft);font-size:22px;flex:none}
+.alt{margin-top:22px;text-align:center}
+.link{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line);min-height:44px;color:var(--soft);font-weight:600;font-size:15px}
+.link:hover{color:var(--ink)}
+/* cartões grandes do início */
+.big{display:grid;gap:14px}
+.bigc{display:flex;flex-direction:column;justify-content:space-between;gap:26px;padding:24px;border-radius:20px;background:var(--surf);min-height:180px;width:100%;border:1px solid transparent;transition:border-color .12s}
+.bigc:hover{border-color:var(--line)}
+.bigc.main{background:var(--op);color:#fff}
+:root[data-theme=dark] .bigc.main,.bigc.main{color:light-dark(#fff,#0f1115)}
+.bigc .ic{width:52px;height:52px;border-radius:16px;background:var(--bg);color:var(--op);display:grid;place-items:center}
+.bigc.main .ic{background:rgba(255,255,255,.18);color:inherit}
+.bigc .ic svg{width:26px;height:26px}
+.bigc b{display:block;font-size:24px;letter-spacing:-.02em;line-height:1.15}
+.bigc span span{display:block;margin-top:6px;font-size:15px;opacity:.85}
+/* formulários */
 .card{background:var(--bg);border:1px solid var(--line);border-radius:16px}
-/* operações: controle segmentado */
+.form{display:flex;flex-direction:column;gap:6px}
+.form label{font-weight:600;font-size:14px;color:var(--soft)}
+.form input[type=text],.form input[type=password],.form input:not([type]){font:500 17px Manrope,sans-serif;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surf);color:var(--ink);min-height:50px;margin-bottom:8px;width:100%}
+.form input:focus{outline:none;border-color:var(--op);background:var(--bg)}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--soft);margin:4px 0 6px;font-weight:500}
+.consent input{width:20px;height:20px;margin-top:1px;accent-color:var(--op);flex:none}
+.err{color:var(--bad);min-height:1.3em;margin:2px 0 6px;font-weight:600;font-size:14px}
+.note{color:var(--soft);font-size:14px;margin:14px 0 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:10px 22px;border-radius:12px;font-weight:700;font-size:16px;border:1px solid var(--line);background:var(--bg)}
+.btn:hover{background:var(--surf)}
+.btn.main{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.main:hover{opacity:.88}
+.btn.op{background:var(--op);border-color:var(--op);color:light-dark(#fff,#0f1115)}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.full{width:100%}
+.btn:disabled{opacity:.5;cursor:wait}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.btns.c{justify-content:center}
+/* níveis */
+.nextbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;padding:18px 20px;border-radius:16px;background:var(--opbg);margin-bottom:22px}
+.nextbar small{display:block;color:var(--soft);font-weight:600;font-size:13px}
+.nextbar b{font-size:18px;letter-spacing:-.01em}
 .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px;background:var(--surf);border-radius:14px;margin-bottom:14px}
-.tab{position:relative;border-radius:10px;min-height:52px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;color:var(--soft)}
+.tab{position:relative;border-radius:10px;min-height:50px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;color:var(--soft);text-align:center}
 .tab .s{font-size:20px;font-weight:600;line-height:1}
 .tab[aria-pressed=true]{background:var(--bg);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px var(--line)}
 .tab[aria-pressed=true] .s{color:var(--op)}
 .tab:disabled{opacity:.45;cursor:not-allowed}
-.tab .lock{width:13px;height:13px}
-.note{color:var(--soft);font-size:14px;margin:0 0 18px;display:flex;align-items:center;gap:8px}
-.note::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--op);flex:none}
-.prog{display:flex;align-items:center;gap:14px;margin:0 0 30px;font-size:14px;font-weight:600;color:var(--soft)}
+.lock{width:13px;height:13px}
+.opnote{color:var(--soft);font-size:14px;margin:0 0 16px}
+.prog{display:flex;align-items:center;gap:14px;margin:0 0 26px;font-size:14px;font-weight:600;color:var(--soft)}
 .prog span{white-space:nowrap}
-.bar{flex:1;height:4px;border-radius:4px;background:var(--surf2);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--op);transition:width .4s}
-/* níveis */
-.grp{margin-bottom:26px}
+.bar{flex:1;height:5px;border-radius:5px;background:var(--surf2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--op);border-radius:5px}
+.grp{margin-bottom:24px}
 .gh{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--line)}
-.sticker{font-size:15px;font-weight:700;margin:0}
+.gh h3{font-size:15px;font-weight:700;margin:0}
 .gh small{color:var(--soft);font-size:13px;font-weight:600;margin-left:auto}
 .dots{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
-.lv{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:10px;min-height:76px;padding:12px;border-radius:12px;background:var(--surf);text-align:left;border:1px solid transparent}
+.lv{display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-height:76px;padding:12px;border-radius:12px;background:var(--surf);border:1px solid transparent}
 .lv:not(:disabled):hover{border-color:var(--line)}
-.disc{font-size:16px;font-weight:700;line-height:1.15;letter-spacing:-.01em}
+.disc{font-size:16px;font-weight:700;line-height:1.15}
 .disc.one{font-size:22px}
 .lv .st{font-size:12px;font-weight:600;color:var(--soft);display:flex;align-items:center;gap:4px;min-height:16px}
-.stars{color:var(--op);letter-spacing:1px;font-size:12px}
-.lv.done{background:var(--opbg)}
-.lv.done .disc{color:var(--op)}
+.stars{color:var(--op);letter-spacing:1px}
+.lv.done{background:var(--opbg)}.lv.done .disc{color:var(--op)}
 .lv.next{background:var(--bg);border-color:var(--op);box-shadow:inset 0 0 0 1px var(--op)}
 .lv.next .st{color:var(--op)}
 .lv:disabled{cursor:not-allowed;background:transparent;border:1px dashed var(--line)}
 .lv:disabled .disc{color:var(--soft)}
-.lv .lock{width:12px;height:12px}
-/* rodapé */
-.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px 22px;color:var(--soft);font-size:14px;align-items:center}
+.foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px 22px;color:var(--soft);font-size:14px;align-items:center}
 .chk{display:flex;align-items:center;gap:8px;min-height:44px}
 .chk input{width:18px;height:18px;accent-color:var(--op)}
-.link{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line);min-height:44px;color:var(--soft);font-weight:600;font-size:14px}
-.link:hover{color:var(--ink)}
-/* login */
-.login{max-width:400px;padding:26px 24px 18px;margin:0 0 12px}
-.form{display:flex;flex-direction:column;gap:6px}
-.form label{font-weight:600;font-size:14px;color:var(--soft)}
-.form input{font:500 17px Manrope,sans-serif;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surf);color:var(--ink);min-height:48px;margin-bottom:6px}
-.form input:focus{outline:none;border-color:var(--op);background:var(--bg)}
-.err{color:var(--bad);min-height:1.3em;margin:2px 0;font-weight:600;font-size:14px}
-/* botões */
-.btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 28px}
-.btns.left{justify-content:flex-start;margin:4px 0}
-.btn{min-height:48px;padding:10px 20px;border-radius:10px;font-weight:700;font-size:15px;border:1px solid var(--line);background:var(--bg)}
-.btn:hover{background:var(--surf)}
-.btn.main{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.btn.main:hover{opacity:.88}
-.btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
 /* jogo */
-.top{display:flex;align-items:center;gap:12px}
-.x{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);font-size:22px;line-height:1;color:var(--soft)}
+.gtop{display:flex;align-items:center;gap:12px}
+.x{width:42px;height:42px;border-radius:10px;border:1px solid var(--line);font-size:22px;line-height:1;color:var(--soft);display:grid;place-items:center;flex:none}
 .ttl{flex:1;font-weight:700;font-size:15px;line-height:1.25}
 .ttl small{display:block;color:var(--soft);font-weight:500;font-size:13px}
 .clock{font-weight:700;font-size:22px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .clock.low{color:var(--bad)}
-.pencil{--p:1;height:4px;border-radius:4px;background:var(--surf2);margin:16px 0 12px;overflow:hidden}
-.pencil i{display:none}
-.pencil::after{content:"";display:block;height:100%;width:calc(var(--p) * 100%);background:var(--op);border-radius:4px}
-.pencil.low::after{background:var(--bad)}
-.stats{display:flex;justify-content:space-between;font-size:13px;color:var(--soft);font-weight:600;margin-bottom:clamp(28px,8vh,64px)}
+.tline{--p:1;height:5px;border-radius:5px;background:var(--surf2);margin:16px 0 12px;overflow:hidden}
+.tline::after{content:"";display:block;height:100%;width:calc(var(--p) * 100%);background:var(--op);border-radius:5px}
+.tline.low::after{background:var(--bad)}
+.stats{display:flex;justify-content:space-between;font-size:13px;color:var(--soft);font-weight:600;margin-bottom:clamp(28px,8vh,72px)}
 .stats b{color:var(--ink);font-variant-numeric:tabular-nums}
-.q{text-align:center;padding:0 0 clamp(28px,7vh,56px);border:0;background:none}
-.taped::before{content:none}
-.expr{font-weight:700;font-size:clamp(64px,16vw,112px);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.q{text-align:center;padding:0 0 clamp(28px,7vh,64px)}
+.expr{font-weight:700;font-size:clamp(64px,15vw,128px);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .expr span{color:var(--op);font-weight:500;margin:0 .06em}
-.cd{font-weight:700;font-size:clamp(72px,18vw,120px);line-height:1;color:var(--soft);font-variant-numeric:tabular-nums}
+.cd{font-weight:700;font-size:clamp(72px,18vw,128px);line-height:1;color:var(--soft)}
 .ans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:560px;margin:0 auto}
-.a{position:relative;border-radius:14px;border:1px solid var(--line);background:var(--surf);min-height:clamp(78px,15vw,96px);font-weight:700;font-size:clamp(34px,8vw,44px);font-variant-numeric:tabular-nums;transition:background .1s}
+.a{position:relative;border-radius:14px;border:1px solid var(--line);background:var(--surf);min-height:clamp(78px,15vw,100px);font-weight:700;font-size:clamp(34px,8vw,44px);font-variant-numeric:tabular-nums;text-align:center}
 .a:not(:disabled):hover{background:var(--surf2)}
 .a:not(:disabled):active{transform:scale(.98)}
-.a kbd{position:absolute;left:12px;top:9px;font:600 11px Manrope,sans-serif;color:var(--soft);opacity:.8}
+.a kbd{position:absolute;left:12px;top:9px;font:600 11px Manrope,sans-serif;color:var(--soft)}
 .a.ok{background:var(--ok);border-color:var(--ok);color:var(--bg)}
 .a.bad{background:var(--bad);border-color:var(--bad);color:var(--bg)}
 .a.ok kbd,.a.bad kbd{color:var(--bg)}
 .a:disabled{cursor:default}
 /* resultado */
 .res{text-align:center}
-.rcard{max-width:480px;margin:12px auto 4px;padding:28px 20px 20px;border:0}
-.medal{width:150px;height:150px;display:block;margin:0 auto 12px}
-.big{display:none}
-.msg{font-size:17px;font-weight:500;margin:6px auto 0;max-width:28em;color:var(--soft)}
-.msg b{color:var(--ink)}
-.errs{text-align:left;padding:16px 18px;max-width:560px;margin:0 auto}
-.errs h3{margin:0 0 10px;font-size:14px;font-weight:700;color:var(--soft)}
+.medal{width:150px;height:150px;display:block;margin:6px auto 12px}
+.msg{font-size:17px;font-weight:500;margin:6px auto 0;max-width:30em;color:var(--soft)}
+.errs{text-align:left;padding:16px 18px;max-width:600px;margin:10px auto 0}
 .errs ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 14px}
 .errs li{font-weight:600;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .errs s{color:var(--bad);font-size:.85em;margin-left:4px}.errs b{color:var(--ok)}
-/* painel do responsável */
-.consent{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--soft);margin:2px 0 4px}
-.consent input{width:18px;height:18px;margin-top:2px;accent-color:var(--op);flex:none}
-.addf{padding:20px;margin:0 0 18px;max-width:440px}
-.addf h3{margin:0 0 4px;font-size:18px}
+/* alunos */
 .okmsg{background:var(--opbg);border-radius:12px;padding:12px 16px;margin:0 0 18px;font-weight:600}
 .okmsg code{font:700 15px Manrope,sans-serif;background:var(--bg);padding:1px 6px;border-radius:6px}
-.srow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;width:100%;text-align:left;padding:14px 16px;border-radius:12px;background:var(--surf);margin-bottom:8px;border:1px solid transparent}
+.addf{padding:20px;margin:0 0 18px}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;width:100%;padding:14px 16px;border-radius:12px;background:var(--surf);margin-bottom:8px;border:1px solid transparent}
 .srow:hover{border-color:var(--line)}
 .srow b{font-size:16px}
-.srow .where{color:var(--soft);font-size:14px;grid-column:1}
+.srow .where{color:var(--soft);font-size:14px}
 .srow .cnt{grid-column:2;grid-row:1;text-align:right;font-weight:700;font-size:14px;white-space:nowrap}
 .srow .when{grid-column:2;grid-row:2;text-align:right;color:var(--soft);font-size:13px;white-space:nowrap}
-.empty{color:var(--soft);padding:22px;text-align:center;border:1px dashed var(--line);border-radius:12px}
-.h2{font-size:17px;font-weight:700;margin:30px 0 10px}
-.opgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:10px}
-.opc{background:var(--surf);border-radius:12px;padding:12px 14px}
-.opc .t{display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:8px}
-.opc .t span{color:var(--soft);font-weight:600}
-.opc .bar{height:6px}
-.opc .bar i{background:var(--c)}
-.misses{display:flex;flex-wrap:wrap;gap:8px}
-.miss{background:var(--surf);border-radius:10px;padding:8px 12px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-.miss small{color:var(--bad);font-weight:600;margin-left:6px}
-.scroll{overflow-x:auto}
-table.ses{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
-.ses th{text-align:left;color:var(--soft);font-weight:600;font-size:13px;padding:8px 10px;border-bottom:1px solid var(--line)}
-.ses td{padding:10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
-.ses td.num,.ses th.num{text-align:right}
-.tagok{color:var(--ok);font-weight:700}.tagno{color:var(--soft)}
-[hidden]{display:none!important}
+.empty{color:var(--soft);padding:22px;text-align:center;border:1px dashed var(--line);border-radius:12px;margin:0}
+/* relatório */
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.kpi{background:var(--surf);border-radius:14px;padding:14px 16px}
+.kpi small{display:block;color:var(--soft);font-weight:600;font-size:13px}
+.kpi b{display:block;font-size:clamp(22px,3vw,28px);letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:2px}
+.kpi span{display:block;color:var(--soft);font-size:12px;margin-top:2px}
+.rgrid{display:grid;gap:14px;margin-bottom:14px}
+.panel{border:1px solid var(--line);border-radius:16px;padding:18px}
+.panel .h2{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.panel .h2 small{color:var(--soft);font-weight:500;font-size:13px}
+.fig{position:relative;height:220px}
+.fig svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--soft);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.opbars{display:grid;gap:12px}
+.opb .t{display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:6px}
+.opb .t span{color:var(--soft);font-weight:600}
+.opb .bar i{background:var(--c)}
+.mtabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.mtab{padding:6px 12px;border-radius:8px;font-weight:700;font-size:13px;color:var(--soft);background:var(--surf);min-height:36px}
+.mtab[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.fmap{max-width:440px;display:grid;gap:3px;font-size:12px;font-variant-numeric:tabular-nums}
+.fmap div{aspect-ratio:1;display:grid;place-items:center;border-radius:5px;font-weight:700}
+.fmap .hd{color:var(--soft);font-weight:600;aspect-ratio:auto;min-height:20px}
+.fmap .c{background:var(--surf);color:transparent}
+.fmap .c1{background:var(--badbg);color:var(--bad)}
+.fmap .c2{background:var(--midbg);color:var(--mid)}
+.fmap .c3{background:var(--okbg);color:var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--surf);border-radius:9px;padding:6px 10px;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip small{font-weight:600;margin-left:6px;color:var(--soft)}
+.chip.bad small{color:var(--bad)}
+.hrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 14px;width:100%;padding:12px 14px;border-bottom:1px solid var(--line);align-items:center}
+.hrow:hover{background:var(--surf)}
+.hrow .l b{font-size:15px}
+.hrow .l span{display:block;color:var(--soft);font-size:13px}
+.hrow .r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hrow .r b{font-size:15px}
+.hrow .r span{display:block;font-size:12px;font-weight:700}
+.pass{color:var(--ok)}.fail{color:var(--soft)}
+.hdet{padding:12px 14px 16px;border-bottom:1px solid var(--line);background:var(--surf)}
+.hdet .chips{gap:5px}
+.qc{border-radius:8px;padding:4px 8px;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap;background:var(--okbg);color:var(--ok)}
+.qc.bad{background:var(--badbg);color:var(--bad)}
+.qc s{opacity:.8;margin-right:4px}
+.more{margin-top:10px}
 @keyframes pop{0%{transform:translateY(6px);opacity:0}100%{transform:none;opacity:1}}
 .pop{animation:pop .16s ease-out}
-@media (prefers-reduced-motion:reduce){.pop{animation:none}.bar i,.a{transition:none}}
-@media(max-width:520px){.tab .n{display:none}.tab .s{font-size:22px}.dots{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}.sync{display:none}}
+@media (prefers-reduced-motion:reduce){.pop{animation:none}.choice,.bigc{transition:none}}
+@media(max-width:520px){.tab .n{display:none}.tab .s{font-size:22px}.dots{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}.ubar .nm{display:none}}
+/* computador */
+@media(min-width:820px){
+  .wrap{padding-top:20px}
+  .choices.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .choices.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .choices.three .choice,.choices.two .choice{flex-direction:column;align-items:flex-start;min-height:210px;padding:24px;gap:18px}
+  .choices.three .choice .chev,.choices.two .choice .chev{display:none}
+  .choices.three .choice b,.choices.two .choice b{font-size:21px}
+  .big{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bigc{min-height:260px;padding:30px}
+  .bigc b{font-size:30px}
+  .ans{grid-template-columns:repeat(4,minmax(0,1fr));max-width:820px}
+  .kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .rgrid.two{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+  .fig{height:260px}
+}
 </style>
 </head>
 <body data-op="add">
-<main class="wrap">
+<div class="wrap">
 
-<div class="topbar">
-  <div class="brand"><i>+</i>Fatos Básicos</div>
-  <div class="ubar" id="ubar" hidden><span id="uname"></span><span class="sync" id="sync"></span><button class="link" id="logout"></button></div>
+<header class="topbar">
+  <button class="brand" id="brand"><i>+</i>Fatos Básicos</button>
+  <div class="ubar" id="ubar" hidden><span class="nm" id="uname"></span><button class="link" id="logout">Sair</button></div>
   <button class="icon" id="themeBtn" aria-label="Alternar tema claro e escuro"></button>
-</div>
+</header>
 
-<section id="login" hidden>
-  <header class="mast"><h1>Entre para treinar</h1><p class="tag">Seu progresso fica salvo e você continua em qualquer aparelho.</p></header>
-  <div class="card login">
-    <form id="loginForm" class="form" novalidate>
-      <label for="lu">Usuário</label>
-      <input id="lu" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
-      <label for="lp">Senha</label>
-      <input id="lp" type="password" autocomplete="current-password">
-      <p class="err" id="lerr" role="alert"></p>
-      <div class="btns left"><button class="btn main" type="submit" id="lin">Entrar</button></div>
-    </form>
+<main>
+<section id="s-load" class="narrow"><p class="lead">Carregando…</p></section>
+
+<!-- passo 1: perfil -->
+<section id="s-quem" class="mid" hidden>
+  <div class="head"><div class="steps"><i class="on"></i><i></i><i></i></div><h1>Quem vai usar?</h1><p class="lead">Treino de contas de 1 dígito contra o relógio, com relatório de cada partida.</p></div>
+  <div class="choices three" id="roles">
+    <button class="choice" data-role="aluno"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></svg></span><span class="tx"><b>Sou aluno</b><span>Quero treinar as contas.</span></span><span class="chev">›</span></button>
+    <button class="choice" data-role="professor"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span><span class="tx"><b>Sou professor</b><span>Cadastro meus alunos e acompanho a turma.</span></span><span class="chev">›</span></button>
+    <button class="choice" data-role="responsavel"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><circle cx="17" cy="10" r="2.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M14 20a4 4 0 0 1 7.5-2"/></svg></span><span class="tx"><b>Sou pai, mãe ou responsável</b><span>Acompanho o treino das crianças em casa.</span></span><span class="chev">›</span></button>
   </div>
-  <p class="tag" style="max-width:400px">Alunos entram com o usuário e a senha criados pelo professor ou responsável.</p>
-  <div class="card login" style="margin-top:18px">
-    <h3 style="margin:0 0 4px;font-size:17px">Sou professor ou responsável</h3>
-    <p class="tag" style="margin:0 0 12px;font-size:14px">Crie sua conta com o usuário e a senha acima para cadastrar alunos e ver os relatórios.</p>
-    <label class="consent"><input type="checkbox" id="lok"> Sou maior de idade e responsável pelos alunos que vou cadastrar.</label>
-    <div class="btns left"><button class="btn" type="button" id="signup">Criar conta de responsável</button></div>
-  </div>
-  <button class="link" id="guest">Jogar sem conta (salva só neste aparelho)</button>
+  <div class="alt"><button class="link" id="guest">Experimentar sem conta</button></div>
 </section>
 
-<section id="home" hidden>
-  <header class="mast"><h1>Treino de fatos básicos</h1><p class="tag">50 contas em 2 minutos. Acerte 45 para liberar o próximo nível.</p></header>
+<!-- passo 2: criar ou entrar -->
+<section id="s-acesso" class="mid" hidden>
+  <button class="back" data-back>‹ Voltar</button>
+  <div class="head"><div class="steps"><i class="on"></i><i class="on"></i><i></i></div><h1 id="acTitle"></h1><p class="lead" id="acLead"></p></div>
+  <div class="choices two">
+    <button class="choice" data-mode="in"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></span><span class="tx"><b>Já tenho conta</b><span id="acIn"></span></span><span class="chev">›</span></button>
+    <button class="choice" data-mode="up"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="4"/><path d="M3 21a7 7 0 0 1 12.5-4.3M19 14v6M16 17h6"/></svg></span><span class="tx"><b>Criar conta</b><span id="acUp"></span></span><span class="chev">›</span></button>
+  </div>
+</section>
+
+<!-- passo 3: formulário -->
+<section id="s-form" class="narrow" hidden>
+  <button class="back" data-back>‹ Voltar</button>
+  <div class="head"><div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i></div><h1 id="fTitle"></h1><p class="lead" id="fLead"></p></div>
+  <form class="form" id="authForm" novalidate>
+    <label for="fu">Usuário</label>
+    <input id="fu" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
+    <label for="fp">Senha</label>
+    <input id="fp" type="password" autocomplete="current-password">
+    <div id="fp2w"><label for="fp2">Repita a senha</label><input id="fp2" type="password" autocomplete="new-password"></div>
+    <label class="consent" id="fokw"><input type="checkbox" id="fok"> <span>Sou maior de idade e responsável pelas crianças que vou cadastrar.</span></label>
+    <p class="err" id="ferr" role="alert"></p>
+    <button class="btn main full" type="submit" id="fsub"></button>
+  </form>
+  <p class="note" id="fNote"></p>
+</section>
+
+<!-- início -->
+<section id="s-inicio" hidden>
+  <div class="head"><h1 id="hiTitle"></h1><p class="lead" id="hiLead"></p></div>
+  <div class="big">
+    <button class="bigc main" id="goPlay"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg></span><span><b id="playT"></b><span id="playS"></span></span></button>
+    <button class="bigc" id="goRep"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span><b id="repT"></b><span id="repS"></span></span></button>
+  </div>
+</section>
+
+<!-- níveis -->
+<section id="s-niveis" hidden>
+  <button class="back" data-home>‹ Início</button>
+  <div class="nextbar" id="nextbar"><div><small>Próximo nível</small><b id="nextName"></b></div><button class="btn op" id="nextGo">Jogar agora</button></div>
   <nav class="tabs" id="tabs" aria-label="Operação"></nav>
-  <p class="note" id="opNote" hidden></p>
+  <p class="opnote" id="opNote" hidden></p>
   <div class="prog"><span id="progTxt"></span><div class="bar"><i id="progBar"></i></div></div>
   <div id="levels"></div>
   <div class="foot">
     <label class="chk"><input type="checkbox" id="snd" checked> Sons</label>
-    <label class="chk" id="freeRow"><input type="checkbox" id="free"> Modo professor (libera todos os níveis)</label>
+    <label class="chk" id="freeRow"><input type="checkbox" id="free"> Liberar todos os níveis neste aparelho</label>
     <button class="link" id="resetBtn">Apagar progresso</button>
   </div>
 </section>
 
-<section id="painel" hidden>
-  <header class="mast"><h1>Seus alunos</h1><p class="tag">Crie as contas dos alunos e acompanhe o que cada um treinou.</p></header>
-  <div class="btns left" style="margin-bottom:18px"><button class="btn main" id="addBtn">Adicionar aluno</button><button class="btn" id="linkBtn">Vincular aluno que já tem conta</button></div>
-  <form class="card addf" id="addForm" hidden novalidate>
-    <h3 id="addTitle"></h3>
-    <p class="tag" id="addHint" style="margin:0 0 12px;font-size:14px"></p>
-    <div class="form">
-      <label for="au">Usuário do aluno</label>
-      <input id="au" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
-      <label for="ap">Senha do aluno</label>
-      <input id="ap" autocomplete="off" autocapitalize="none" spellcheck="false">
-      <p class="err" id="aerr" role="alert"></p>
-      <div class="btns left"><button class="btn main" type="submit" id="asub"></button><button class="btn" type="button" id="acancel">Cancelar</button></div>
-    </div>
-  </form>
-  <p class="okmsg" id="aok" hidden></p>
-  <div id="slist"></div>
-</section>
-
-<section id="aluno" hidden>
-  <button class="link" id="back">‹ Voltar para os alunos</button>
-  <header class="mast" style="margin-top:6px"><h1 id="sname"></h1><p class="tag" id="ssub"></p></header>
-  <div class="opgrid" id="sops"></div>
-  <label class="chk"><input type="checkbox" id="slib"> Liberar todos os níveis para este aluno</label>
-  <h2 class="h2">Contas que mais erra</h2>
-  <div id="smiss"></div>
-  <h2 class="h2">Últimas partidas</h2>
-  <div class="scroll" id="ssess"></div>
-</section>
-
-<section id="game" hidden>
-  <div class="top">
+<!-- jogo -->
+<section id="s-game" hidden>
+  <div class="gtop">
     <button class="x" id="quit" aria-label="Sair do nível">×</button>
     <div class="ttl" id="gTitle"></div>
     <div class="clock" id="clock">2:00</div>
   </div>
-  <div class="pencil" id="pencil" aria-hidden="true"></div>
+  <div class="tline" id="tline" aria-hidden="true"></div>
   <div class="stats"><span>Conta <b id="qn">0</b> de 50</span><span>Acertos <b id="hits">0</b></span><span>Meta <b>45</b></span></div>
   <div class="q" id="qbox"><div class="expr" id="expr"></div></div>
   <div class="ans" id="ans"></div>
 </section>
 
-<section id="result" class="res" hidden>
-  <div class="rcard">
-    <svg class="medal" id="medal" viewBox="0 0 150 150" aria-hidden="true"></svg>
-    <div class="big" id="score"></div>
-    <p class="msg" id="msg"></p>
-  </div>
-  <div class="btns" id="rbtns"></div>
-  <div class="card errs" id="errs" hidden><h3>Contas para treinar</h3><ul id="errList"></ul></div>
+<!-- resultado -->
+<section id="s-result" class="res mid" hidden>
+  <svg class="medal" id="medal" viewBox="0 0 150 150" aria-hidden="true"></svg>
+  <p class="msg" id="msg"></p>
+  <div class="btns c" id="rbtns"></div>
+  <div class="card errs" id="errs" hidden><h2 class="h2">Contas para treinar</h2><ul id="errList"></ul></div>
 </section>
 
-<section id="confirm" hidden style="text-align:center;padding-top:30px">
-  <h1 class="f" style="font-size:28px;margin:0 0 6px;letter-spacing:-.02em">Apagar todo o progresso?</h1>
+<!-- alunos do responsável -->
+<section id="s-alunos" class="mid" hidden>
+  <button class="back" data-home>‹ Início</button>
+  <div class="head"><h1 id="alTitle"></h1><p class="lead" id="alLead"></p></div>
+  <div class="btns" style="margin-top:0"><button class="btn main" id="addBtn">Adicionar</button><button class="btn" id="linkBtn">Vincular conta que já existe</button></div>
+  <form class="card addf form" id="addForm" hidden novalidate>
+    <h2 class="h2" id="addTitle"></h2>
+    <p class="note" id="addHint" style="margin:0 0 12px"></p>
+    <label for="au">Usuário</label>
+    <input id="au" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
+    <label for="ap">Senha</label>
+    <input id="ap" autocomplete="off" autocapitalize="none" spellcheck="false">
+    <p class="err" id="aerr" role="alert"></p>
+    <div class="btns" style="margin:0"><button class="btn main" type="submit" id="asub"></button><button class="btn" type="button" id="acancel">Cancelar</button></div>
+  </form>
+  <p class="okmsg" id="aok" hidden></p>
+  <div id="slist"></div>
+</section>
+
+<!-- relatório -->
+<section id="s-rel" hidden>
+  <button class="back" id="relBack">‹ Voltar</button>
+  <div class="head"><h1 id="rName"></h1><p class="lead" id="rSub"></p></div>
+  <div id="rBody"></div>
+</section>
+
+<section id="s-confirm" class="narrow res" hidden>
+  <h1 style="font-size:28px">Apagar todo o progresso?</h1>
   <p class="msg">Os níveis voltam a ficar bloqueados nas quatro operações.</p>
-  <div class="btns"><button class="btn" id="cNo">Cancelar</button><button class="btn danger" id="cYes">Apagar</button></div>
+  <div class="btns c"><button class="btn" id="cNo">Cancelar</button><button class="btn danger" id="cYes">Apagar</button></div>
 </section>
-
 </main>
+</div>
+
 <script>
-// Configuração do Firebase — cole aqui o bloco do seu projeto. Com null, o app funciona só sem conta.
+// Configuração do Firebase — com null, o app funciona só sem conta.
 window.FIREBASE_CONFIG = {
   apiKey: "AIzaSyC5eTOAqTIHgUDsltwml-AJKdlpq9cIRug",
   authDomain: "fatos-basicos.firebaseapp.com",
@@ -291,10 +386,13 @@ window.FIREBASE_CONFIG = {
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 {
+// ================= dados do jogo =================
 const TOTAL=50,TIME=120,PASS=45;
 const OPS={add:{s:'+',n:'Soma'},sub:{s:'−',n:'Subtração'},mul:{s:'×',n:'Multiplicação'},div:{s:'÷',n:'Divisão'}};
 const VERB={add:'Somas',sub:'Subtrações',mul:'Multiplicações',div:'Divisões'};
-// Níveis por dígito novo d: "com d", depois "com k ou d" para cada k anterior, depois "com todos até d".
+const ORDER=['add','sub','mul','div'];
+const OPCOL={add:'#2f5bea',sub:'#c2410c',mul:'#0f766e',div:'#7c3aed'};
+// Níveis por dígito novo d: "com d", depois "com k ou d", depois "com todos até d".
 // O dígito treinado é sempre o 2º termo (na subtração, o subtraendo; na divisão, o divisor — sem zero).
 const joinOu=a=>a.length===1?String(a[0]):a.slice(0,-1).join(', ')+' ou '+a[a.length-1];
 function buildLevels(o){
@@ -308,49 +406,66 @@ function buildLevels(o){
   }
   return out;
 }
-const LV={};for(const o of['add','sub','mul','div'])LV[o]=buildLevels(o);
-let LEVELS=LV.add;
+const LV={};for(const o of ORDER)LV[o]=buildLevels(o);
+const TOTAL_LV=ORDER.reduce((n,o)=>n+LV[o].length,0);
 const $=id=>document.getElementById(id);
-let op='add',free=false,localFree=false,sound=true,data={},role=null;
-try{localFree=free=localStorage.getItem('cr-free')==='1';sound=localStorage.getItem('cr-snd')!=='0';op=localStorage.getItem('cr-op')||'add'}catch(e){}
-if(!OPS[op])op='add';
-LEVELS=LV[op];
-// ---- conta e nuvem ----
-let user=null,guest=false,auth=null,db=null,cloudT=0,pendingRole=null;
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LOCK='<svg class="lock" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 10V8a6 6 0 1 1 12 0v2h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1zm2 0h8V8a4 4 0 1 0-8 0v2z"/></svg>';
+
+// ================= estado =================
+let op='add',LEVELS=LV.add,free=false,localFree=false,sound=true,data={};
+let user=null,role=null,guest=false,pick='aluno',mode='in',pendingRole=null;
+const ADULT=r=>r==='professor'||r==='responsavel';
+try{localFree=localStorage.getItem('cr-free')==='1';sound=localStorage.getItem('cr-snd')!=='0';op=localStorage.getItem('cr-op')||'add'}catch(e){}
+if(!OPS[op])op='add';LEVELS=LV[op];free=localFree;
+
+let auth=null,db=null,cloudT=0;
 if(window.firebase&&window.FIREBASE_CONFIG){
   try{firebase.initializeApp(window.FIREBASE_CONFIG);auth=firebase.auth();db=firebase.firestore()}catch(e){auth=null;db=null}
 }
 const lsKey=()=>user?'cr-u-'+user.uid:'cr-data2';
 function loadLocal(){try{data=JSON.parse(localStorage.getItem(lsKey())||'{}')}catch(e){data={}}}
-const setSync=t=>{const s=$('sync');if(s)s.textContent=t};
 function cloudSave(){
   if(!user||!db)return;
-  clearTimeout(cloudT);setSync('Salvando…');
-  cloudT=setTimeout(()=>{
-    db.collection('usuarios').doc(user.uid).set({nome:user.name,progresso:data,atualizado:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})
-      .then(()=>setSync('Progresso salvo na nuvem'))
-      .catch(()=>setSync('Sem conexão — será salvo quando a internet voltar'));
-  },400);
+  clearTimeout(cloudT);
+  cloudT=setTimeout(()=>{db.collection('usuarios').doc(user.uid).set({nome:user.name,progresso:data,atualizado:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(()=>{})},400);
 }
 const save=()=>{try{localStorage.setItem(lsKey(),JSON.stringify(data));localStorage.setItem('cr-free',localFree?'1':'0');localStorage.setItem('cr-snd',sound?'1':'0');localStorage.setItem('cr-op',op)}catch(e){}cloudSave()};
 function merge(a,b){const o={...a};for(const k in b){const x=o[k]||{best:0,pass:false},y=b[k]||{};o[k]={best:Math.max(x.best||0,y.best||0),pass:!!(x.pass||y.pass)}}return o}
-const rec=(o,i)=>data[LV[o][i].key]||{best:0,pass:false};
-const ORDER=['add','sub','mul','div'];
-const opDone=o=>LV[o].every((L,i)=>rec(o,i).pass);
+// partidas de quem joga sem conta ficam no aparelho
+const LSES='cr-ses-guest';
+function localSessions(){try{return JSON.parse(localStorage.getItem(LSES)||'[]')}catch(e){return[]}}
+function pushLocalSession(x){try{const a=localSessions();a.unshift(x);localStorage.setItem(LSES,JSON.stringify(a.slice(0,300)))}catch(e){}}
+
+// ================= progresso =================
+const recOf=(prog,o,i)=>prog[LV[o][i].key]||{best:0,pass:false};
+const rec=(o,i)=>recOf(data,o,i);
+const opDoneP=(prog,o)=>LV[o].every((L,i)=>recOf(prog,o,i).pass);
+const opDone=o=>opDoneP(data,o);
 const opUnlocked=o=>{const k=ORDER.indexOf(o);return free||k===0||opDone(ORDER[k-1])};
 const unlocked=(o,i)=>free||(opUnlocked(o)&&(i===0||rec(o,i-1).pass));
 const starsOf=b=>b>=50?3:b>=48?2:b>=PASS?1:0;
+function nextLevel(){
+  for(const o of ORDER){if(!opUnlocked(o))break;const i=LV[o].findIndex((L,i)=>!rec(o,i).pass&&unlocked(o,i));if(i>=0)return{o,i}}
+  return null;
+}
+function summary(prog){
+  prog=prog||{};let done=0;const per={};
+  for(const o of ORDER){per[o]=LV[o].filter(L=>prog[L.key]&&prog[L.key].pass).length;done+=per[o]}
+  let where='Concluiu todas as operações';
+  for(const o of ORDER){const L=LV[o].find(L=>!(prog[L.key]&&prog[L.key].pass));if(L){where=`${OPS[o].n}: ${L.t}`;break}}
+  if(!Object.keys(prog).length)where='Ainda não jogou';
+  return {done,per,where};
+}
 
-// ---- geração das contas ----
+// ================= geração das contas =================
 function facts(o,set){
   const m=new Map(),add=(a,b,r)=>m.set(a+','+b,{a,b,r});
-  for(const s of set){
-    for(let x=0;x<=9;x++){
-      if(o==='add')add(x,s,x+s);                          // x + s
-      if(o==='mul')add(x,s,x*s);                          // x × s
-      if(o==='sub')add(x+s,s,x);                          // (x+s) − s = x, de 0 a 9
-      if(o==='div'&&s>0)add(x*s,s,x);                     // (x·s) ÷ s = x, de 0 a 9
-    }
+  for(const s of set)for(let x=0;x<=9;x++){
+    if(o==='add')add(x,s,x+s);
+    if(o==='mul')add(x,s,x*s);
+    if(o==='sub')add(x+s,s,x);
+    if(o==='div'&&s>0)add(x*s,s,x);
   }
   return [...m.values()];
 }
@@ -371,16 +486,13 @@ function options(o,f){
   if(o==='mul'){c.add(a+b);c.add(r+a);c.add(r-b);c.add(r+b)}
   if(o==='sub'){c.add(a+b);c.add(r+10)}
   if(o==='div'){c.add(b);c.add(a-b)}
-  const max=o==='add'?18:o==='mul'?81:o==='sub'?18:81;
-  let cand=shuffle([...c].filter(v=>v>=0&&v!==r&&v<=max));
-  // prioriza vizinhos próximos para ficar desafiador, mas mistura
+  const max=o==='add'||o==='sub'?18:81;
+  const cand=shuffle([...c].filter(v=>v>=0&&v!==r&&v<=max));
   cand.sort((x,y)=>Math.abs(x-r)-Math.abs(y-r)+(Math.random()-.5)*4);
-  const pick=cand.slice(0,3);
-  let k=1;while(pick.length<3){if(!pick.includes(r+k))pick.push(r+k);k++}
-  return shuffle([r,...pick]);
+  const pick3=cand.slice(0,3);
+  let k=1;while(pick3.length<3){if(!pick3.includes(r+k))pick3.push(r+k);k++}
+  return shuffle([r,...pick3]);
 }
-
-// ---- sons ----
 let ac=null;
 function beep(f,d,type='sine',v=.12){
   if(!sound)return;
@@ -389,25 +501,147 @@ function beep(f,d,type='sine',v=.12){
   o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}
 }
 
-// ---- tela inicial ----
-const LOCK='<svg class="lock" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V8a6 6 0 1 1 12 0v2h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1zm2 0h8V8a4 4 0 1 0-8 0v2z"/></svg>';
+// ================= navegação =================
+const SCREENS=['s-load','s-quem','s-acesso','s-form','s-inicio','s-niveis','s-game','s-result','s-alunos','s-rel','s-confirm'];
+let cur='s-load';
+function show(id,how){
+  if(G&&!G.over&&id!=='s-game'){G.over=true;clearTimeout(G.timer);cancelAnimationFrame(raf);G=null}
+  for(const s of SCREENS)$(s).hidden=s!==id;
+  cur=id;
+  const logged=!!user||guest;
+  $('ubar').hidden=!logged||['s-quem','s-acesso','s-form','s-load'].includes(id);
+  try{
+    if(how==='replace')history.replaceState({id},'');
+    else if(how!=='pop')history.pushState({id},'');
+  }catch(e){}
+  window.scrollTo(0,0);
+}
+window.addEventListener('popstate',e=>{
+  let id=e.state&&e.state.id;
+  if(!id)return;
+  const logged=!!user||guest;
+  if(id==='s-game'||id==='s-result'||id==='s-confirm')id='s-niveis';
+  if(!logged&&!['s-quem','s-acesso','s-form'].includes(id))id='s-quem';
+  if(logged&&['s-quem','s-acesso','s-form','s-load'].includes(id))id='s-inicio';
+  if(id==='s-inicio')renderInicio();
+  if(id==='s-niveis'){scrollNext=true;renderLevels()}
+  show(id,'pop');
+});
+const goHome=()=>{if(user||guest){renderInicio();show('s-inicio')}else show('s-quem')};
+$('brand').addEventListener('click',goHome);
+document.querySelectorAll('[data-home]').forEach(b=>b.addEventListener('click',goHome));
+document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>history.back()));
+
+// ================= passos de entrada =================
+const ROLE_N={aluno:'aluno',professor:'professor',responsavel:'responsável'};
+$('roles').addEventListener('click',e=>{
+  const b=e.target.closest('[data-role]');if(!b)return;pick=b.dataset.role;
+  $('acTitle').textContent=pick==='aluno'?'Você já tem uma conta?':pick==='professor'?'Olá, professor! Já tem conta?':'Olá! Você já tem conta?';
+  $('acLead').textContent=pick==='aluno'?'Se o seu professor ou responsável criou uma conta para você, escolha “Já tenho conta”.':'Com a conta você cadastra '+(pick==='professor'?'seus alunos':'as crianças')+' e vê o relatório de cada um.';
+  $('acIn').textContent=pick==='aluno'?'Entrar e continuar de onde parei.':'Entrar e ver meus '+(pick==='professor'?'alunos':'relatórios')+'.';
+  $('acUp').textContent=pick==='aluno'?'Começar do zero com um usuário novo.':'Leva menos de um minuto.';
+  show('s-acesso');
+});
+document.querySelector('#s-acesso .choices').addEventListener('click',e=>{
+  const b=e.target.closest('[data-mode]');if(!b)return;mode=b.dataset.mode;
+  const up=mode==='up';
+  $('fTitle').textContent=up?(pick==='aluno'?'Criar sua conta':pick==='professor'?'Criar conta de professor':'Criar conta de responsável'):'Entrar';
+  $('fLead').textContent=up?'Escolha um usuário sem espaços nem acentos e uma senha de pelo menos 6 caracteres.':'Digite seu usuário e sua senha.';
+  $('fp2w').hidden=!up;$('fokw').hidden=!(up&&ADULT(pick));
+  $('fp').autocomplete=up?'new-password':'current-password';
+  $('fsub').textContent=up?'Criar conta':'Entrar';
+  $('fNote').textContent=up&&pick==='aluno'?'Dica: peça para um adulto ajudar a anotar seu usuário e sua senha.':(!up?'Esqueceu a senha? Peça para o seu professor ou responsável criar uma nova conta.':'');
+  $('ferr').textContent='';$('fp').value='';$('fp2').value='';$('fok').checked=false;
+  show('s-form');setTimeout(()=>$('fu').focus(),50);
+});
+$('guest').addEventListener('click',()=>{guest=true;user=null;role=null;free=localFree;loadLocal();renderInicio();show('s-inicio')});
+
+const ERR={'auth/email-already-in-use':'Esse usuário já existe. Escolha outro nome.','auth/invalid-credential':'Usuário ou senha incorretos.','auth/invalid-login-credentials':'Usuário ou senha incorretos.','auth/wrong-password':'Usuário ou senha incorretos.','auth/user-not-found':'Usuário ou senha incorretos.','auth/network-request-failed':'Sem internet. Verifique a conexão.','auth/too-many-requests':'Muitas tentativas. Espere um pouco e tente de novo.','auth/weak-password':'A senha precisa ter pelo menos 6 caracteres.','auth/operation-not-allowed':'O login com senha ainda não foi ativado no Firebase.'};
+const errMsg=e=>ERR[e&&e.code]||('Não deu certo ('+((e&&(e.code||e.message))||'erro')+').');
+$('authForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const u=$('fu').value.trim().toLowerCase(),p=$('fp').value,err=t=>{$('ferr').textContent=t};
+  if(!auth)return err('O login não está disponível nesta versão. Use “Experimentar sem conta”.');
+  if(!/^[a-z0-9._-]{3,20}$/.test(u))return err('Usuário: de 3 a 20 letras ou números, sem espaços nem acentos.');
+  if(p.length<6)return err('A senha precisa ter pelo menos 6 caracteres.');
+  if(mode==='up'&&p!==$('fp2').value)return err('As duas senhas estão diferentes.');
+  if(mode==='up'&&ADULT(pick)&&!$('fok').checked)return err('Confirme que você é maior de idade para continuar.');
+  err('');$('fsub').disabled=true;
+  try{
+    const em=u+'@fatosbasicos.app';
+    if(mode==='up'){pendingRole=pick;await auth.createUserWithEmailAndPassword(em,p)}
+    else await auth.signInWithEmailAndPassword(em,p);
+    $('fp').value='';$('fp2').value='';
+  }catch(e2){pendingRole=null;err(errMsg(e2))}
+  $('fsub').disabled=false;
+});
+$('logout').addEventListener('click',()=>{
+  if(user)auth.signOut();
+  else{guest=false;show('s-quem')}
+});
+
+async function afterLogin(u){
+  user={uid:u.uid,name:(u.email||'').split('@')[0]};guest=false;
+  const ref=db.collection('usuarios').doc(u.uid),FV=firebase.firestore.FieldValue;
+  if(pendingRole){
+    const r=pendingRole;pendingRole=null;
+    try{await ref.set({papel:r,nome:user.name,criado:FV.serverTimestamp()},{merge:true})}catch(e){}
+    try{localStorage.setItem('cr-role-'+u.uid,r)}catch(e){}
+  }
+  let d=null;
+  try{const sn=await ref.get();d=sn.exists?sn.data():{}}catch(e){}
+  let cached=null;try{cached=localStorage.getItem('cr-role-'+u.uid)}catch(e){}
+  const pr=d?d.papel:cached;
+  role=ADULT(pr)?pr:'aluno';
+  try{localStorage.setItem('cr-role-'+u.uid,role)}catch(e){}
+  free=role==='aluno'?!!(d&&d.liberado):localFree;
+  loadLocal();
+  if(d){
+    const cloud=d.progresso||{},before=JSON.stringify(cloud);
+    data=merge(data,cloud);
+    if(JSON.stringify(data)!==before)save();else{try{localStorage.setItem(lsKey(),JSON.stringify(data))}catch(e){}}
+  }
+  $('uname').innerHTML='<b></b>';$('uname').firstChild.textContent=user.name;
+  renderInicio();show('s-inicio','replace');
+}
+
+// ================= início =================
+function renderInicio(){
+  $('uname').innerHTML=user?'<b></b>':'<b>Sem conta</b>';if(user)$('uname').firstChild.textContent=user.name;
+  $('logout').textContent=user?'Sair':'Entrar';
+  const started=Object.keys(data).length>0,nx=nextLevel();
+  $('hiTitle').textContent=user?`Olá, ${user.name}!`:'Olá!';
+  $('hiLead').textContent=ADULT(role)?'Treine você também, ou acompanhe o progresso de '+(role==='professor'?'seus alunos':'suas crianças')+'.':(guest?'Você está jogando sem conta: o progresso fica só neste aparelho.':'O que vamos fazer hoje?');
+  $('playT').textContent=started?'Continuar jogando':'Começar a jogar';
+  $('playS').textContent=nx?`Próximo: ${OPS[nx.o].n}, ${LV[nx.o][nx.i].t}`:'Você concluiu todos os níveis!';
+  $('repT').textContent=ADULT(role)?'Ver relatórios':'Ver meu relatório';
+  $('repS').textContent=ADULT(role)?('Lista de '+(role==='professor'?'alunos':'crianças')+' e o desempenho de cada um'):'Acertos, erros, tempo e evolução';
+}
+$('goPlay').addEventListener('click',()=>{const nx=nextLevel();if(nx)op=nx.o;scrollNext=true;renderLevels();show('s-niveis')});
+$('goRep').addEventListener('click',()=>{
+  if(ADULT(role))openAlunos();
+  else openReport({uid:user?user.uid:null,nome:user?user.name:'Meu treino',self:true,local:!user});
+});
+
+// ================= níveis =================
 let scrollNext=true;
-function show(id){for(const s of['login','home','painel','aluno','game','result','confirm'])$(s).hidden=s!==id;$('ubar').hidden=!auth||!['home','result','painel','aluno'].includes(id);window.scrollTo(0,0)}
-var renderHome;renderHome=function(){
+function renderLevels(){
   if(!opUnlocked(op))op='add';
   document.body.dataset.op=op;LEVELS=LV[op];
-  $('tabs').innerHTML=Object.entries(OPS).map(([k,v])=>{const ul=opUnlocked(k);
-    return `<button class="tab" data-op="${k}" aria-label="${v.n}${ul?'':' (bloqueada)'}" aria-pressed="${k===op}" ${ul?'':'disabled'}>${ul?'':LOCK}<span class="s">${v.s}</span><span class="n">${v.n}</span></button>`}).join('');
+  $('tabs').innerHTML=ORDER.map(k=>{const ul=opUnlocked(k);
+    return `<button class="tab" data-op="${k}" aria-label="${OPS[k].n}${ul?'':' (bloqueada)'}" aria-pressed="${k===op}" ${ul?'':'disabled'}>${ul?'':LOCK}<span class="s">${OPS[k].s}</span><span class="n">${OPS[k].n}</span></button>`}).join('');
   const k=ORDER.indexOf(op),nx=ORDER[k+1];
   $('opNote').hidden=!(nx&&!opUnlocked(nx));
   if(nx)$('opNote').textContent=`Complete todos os níveis de ${OPS[op].n.toLowerCase()} para liberar ${OPS[nx].n.toLowerCase()}.`;
+  const n=nextLevel();
+  $('nextbar').hidden=!n;
+  if(n)$('nextName').textContent=`${OPS[n.o].n}: ${LV[n.o][n.i].t}`;
   let done=0,nextI=-1;
   const cards=LEVELS.map((L,i)=>{
     const r=rec(op,i),ul=unlocked(op,i);if(r.pass)done++;
     if(nextI<0&&ul&&!r.pass)nextI=i;
-    const st=starsOf(r.best);
-    const set=L.set,last=set.length>2&&set[set.length-1]-set[0]===set.length-1;
-    const lab=L.t==='Todos os dígitos'?'todos':set.length===1?String(set[0]):last?`${set[0]} a ${set[set.length-1]}`:`${set[0]} ou ${set[1]}`;
+    const st=starsOf(r.best),set=L.set,run=set.length>2;
+    const lab=L.t==='Todos os dígitos'?'todos':set.length===1?String(set[0]):run?`${set[0]} a ${set[set.length-1]}`:`${set[0]} ou ${set[1]}`;
     const status=r.pass?`<span class="stars" aria-hidden="true">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span>`:r.best?`${r.best}/50`:ul?(i===nextI?'jogar':''):LOCK;
     const aria=`Nível ${i+1}: ${L.t}. `+(r.pass?`Vencido, ${r.best} de 50.`:r.best?`Melhor resultado ${r.best} de 50.`:ul?'Liberado.':'Bloqueado.');
     return `<button class="lv${r.pass?' done':''}${i===nextI?' next':''}" data-i="${i}" ${ul?'':'disabled'} aria-label="${aria}" title="${aria}"><span class="disc${set.length===1?' one':''}">${lab}</span><span class="st">${status}</span></button>`;
@@ -416,47 +650,49 @@ var renderHome;renderHome=function(){
   $('levels').innerHTML=digits.map(d=>{
     const idx=LEVELS.map((L,i)=>L.d===d?i:-1).filter(i=>i>=0);
     const ok=idx.filter(i=>rec(op,i).pass).length;
-    return `<section class="grp"><div class="gh"><h2 class="sticker">Dígito ${d}</h2><small>${ok} de ${idx.length}</small></div><div class="dots">${idx.map(i=>cards[i]).join('')}</div></section>`;
+    return `<section class="grp"><div class="gh"><h3>Dígito ${d}</h3><small>${ok} de ${idx.length}</small></div><div class="dots">${idx.map(i=>cards[i]).join('')}</div></section>`;
   }).join('');
-  const nb=$('levels').querySelector('.lv.next');
-  if(nb&&scrollNext){scrollNext=false;requestAnimationFrame(()=>nb.scrollIntoView({block:'center'}))}
   $('progTxt').textContent=`${done} de ${LEVELS.length} níveis`;
   $('progBar').style.width=(done/LEVELS.length*100)+'%';
   $('free').checked=localFree;$('snd').checked=sound;
+  const isAluno=!!user&&role==='aluno';
+  $('freeRow').hidden=isAluno;$('resetBtn').hidden=isAluno;
+  const nb=$('levels').querySelector('.lv.next');
+  if(nb&&scrollNext&&!$('s-niveis').hidden){scrollNext=false;requestAnimationFrame(()=>nb.scrollIntoView({block:'center'}))}
 }
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;op=b.dataset.op;save();scrollNext=true;renderHome()});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b||b.disabled)return;op=b.dataset.op;save();renderLevels()});
 $('levels').addEventListener('click',e=>{const b=e.target.closest('.lv');if(b&&!b.disabled)start(+b.dataset.i)});
-$('free').addEventListener('change',e=>{localFree=free=e.target.checked;save();renderHome()});
+$('nextGo').addEventListener('click',()=>{const n=nextLevel();if(n){op=n.o;LEVELS=LV[op];document.body.dataset.op=op;start(n.i)}});
+$('free').addEventListener('change',e=>{localFree=free=e.target.checked;save();renderLevels()});
 $('snd').addEventListener('change',e=>{sound=e.target.checked;save()});
-$('resetBtn').addEventListener('click',()=>show('confirm'));
-$('cNo').addEventListener('click',()=>show('home'));
-$('cYes').addEventListener('click',()=>{data={};save();scrollNext=true;renderHome();show('home')});
+$('resetBtn').addEventListener('click',()=>show('s-confirm'));
+$('cNo').addEventListener('click',()=>history.back());
+$('cYes').addEventListener('click',()=>{data={};save();if(guest)try{localStorage.removeItem(LSES)}catch(e){};scrollNext=true;renderLevels();show('s-niveis','replace')});
 
-// ---- jogo ----
+// ================= jogo =================
 let G=null,raf=0;
 function start(i){
   const L=LEVELS[i];
-  G={i,q:buildRound(op,L.set),k:0,hits:0,wrong:[],t0:0,lock:true,over:false,timer:0};
-  $('gTitle').innerHTML=`${VERB[op]} — ${L.t}<small>Nível ${i+1} de ${LEVELS.length}</small>`;
+  G={i,q:buildRound(op,L.set),k:0,hits:0,wrong:[],log:[],t0:0,qt:0,lock:true,over:false,timer:0};
+  $('gTitle').innerHTML=`${VERB[op]}: ${esc(L.t)}<small>Nível ${i+1} de ${LEVELS.length}</small>`;
   $('qn').textContent='0';$('hits').textContent='0';$('clock').textContent='2:00';$('clock').classList.remove('low');
-  $('pencil').style.setProperty('--p',1);$('pencil').classList.remove('low');
+  $('tline').style.setProperty('--p',1);$('tline').classList.remove('low');
   $('ans').innerHTML=[0,1,2,3].map(n=>`<button class="a" data-n="${n}" disabled><kbd>${n+1}</kbd>&nbsp;</button>`).join('');
-  show('game');
-  let c=3;
+  show('s-game');
+  const g=G;let c=3;
   const cd=()=>{
-    if(!G||G.over)return;
-    if(c>0){$('qbox').innerHTML=`<div class="cd pop">${c}</div>`;beep(520,.12);c--;G.timer=setTimeout(cd,700)}
-    else{$('qbox').innerHTML='<div class="expr" id="expr"></div>';beep(880,.2);G.t0=performance.now();tick();ask()}
+    if(G!==g||g.over)return;
+    if(c>0){$('qbox').innerHTML=`<div class="cd pop">${c}</div>`;beep(520,.12);c--;g.timer=setTimeout(cd,700)}
+    else{$('qbox').innerHTML='<div class="expr" id="expr"></div>';beep(880,.2);g.t0=performance.now();tick();ask()}
   };
   cd();
 }
 function tick(){
   if(!G||G.over)return;
-  const left=Math.max(0,TIME-(performance.now()-G.t0)/1000);
-  const s=Math.ceil(left);
+  const left=Math.max(0,TIME-(performance.now()-G.t0)/1000),s=Math.ceil(left);
   $('clock').textContent=`${s/60|0}:${String(s%60).padStart(2,'0')}`;
   $('clock').classList.toggle('low',left<=15);
-  $('pencil').style.setProperty('--p',left/TIME);$('pencil').classList.toggle('low',left<=15);
+  $('tline').style.setProperty('--p',left/TIME);$('tline').classList.toggle('low',left<=15);
   if(left<=0){finish();return}
   raf=requestAnimationFrame(tick);
 }
@@ -465,156 +701,102 @@ function ask(){
   $('expr').innerHTML=`${q.a} <span>${OPS[op].s}</span> ${q.b}`;
   $('expr').classList.remove('pop');void $('expr').offsetWidth;$('expr').classList.add('pop');
   [...$('ans').children].forEach((b,n)=>{b.className='a';b.disabled=false;b.innerHTML=`<kbd>${n+1}</kbd>${q.opts[n]}`});
-  $('qn').textContent=G.k+1;
-  G.lock=false;
+  $('qn').textContent=G.k+1;G.qt=performance.now();G.lock=false;
 }
 function answer(n){
   if(!G||G.lock||G.over)return;
   G.lock=true;
-  const q=G.q[G.k],v=q.opts[n],btns=[...$('ans').children];
+  const q=G.q[G.k],v=q.opts[n],btns=[...$('ans').children],ms=Math.round(performance.now()-G.qt);
   btns.forEach(b=>b.disabled=true);
+  G.log.push({a:q.a,b:q.b,r:q.r,v,ms});
   let wait=220;
   if(v===q.r){G.hits++;btns[n].classList.add('ok');beep(988,.09,'triangle')}
   else{G.wrong.push({...q,v});btns[n].classList.add('bad');btns[q.opts.indexOf(q.r)].classList.add('ok');beep(180,.18,'square',.06);wait=650}
-  $('hits').textContent=G.hits;
-  G.k++;
-  G.timer=setTimeout(()=>{if(G.over)return;if(G.k>=TOTAL)finish();else ask()},wait);
+  $('hits').textContent=G.hits;G.k++;
+  const g=G;g.timer=setTimeout(()=>{if(g.over)return;if(g.k>=TOTAL)finish();else ask()},wait);
 }
 $('ans').addEventListener('click',e=>{const b=e.target.closest('.a');if(b)answer(+b.dataset.n)});
-document.addEventListener('keydown',e=>{
-  if(!$('game').hidden){
-    if(e.key>='1'&&e.key<='4')answer(+e.key-1);
-    if(e.key==='Escape')quit();
-  }
-});
-function quit(){if(G){G.over=true;clearTimeout(G.timer)}cancelAnimationFrame(raf);G=null;scrollNext=true;renderHome();show('home')}
+document.addEventListener('keydown',e=>{if(cur!=='s-game')return;if(e.key>='1'&&e.key<='4')answer(+e.key-1);if(e.key==='Escape')quit()});
+function quit(){if(G){G.over=true;clearTimeout(G.timer)}cancelAnimationFrame(raf);G=null;scrollNext=true;renderLevels();show('s-niveis','replace')}
 $('quit').addEventListener('click',quit);
-
+let lastResult=0;
 function finish(){
   if(!G||G.over)return;
   G.over=true;clearTimeout(G.timer);cancelAnimationFrame(raf);
-  const used=Math.min(TIME,(performance.now()-G.t0)/1000);
-  const unanswered=TOTAL-G.k,pass=G.hits>=PASS,i=G.i;
+  const used=Math.min(TIME,(performance.now()-G.t0)/1000),unanswered=TOTAL-G.k,pass=G.hits>=PASS,i=G.i,L=LV[op][i];
   const r=rec(op,i);
-  data[LV[op][i].key]={best:Math.max(r.best,G.hits),pass:r.pass||pass};save();
-  if(user&&db&&role==='aluno'){
-    db.collection('usuarios').doc(user.uid).collection('sessoes').add({op,nivel:i+1,chave:LV[op][i].key,nome:LV[op][i].t,acertos:G.hits,respondidas:G.k,
-      tempo:Math.round(used),passou:pass,erros:G.wrong.map(w=>({a:w.a,b:w.b,r:w.r,v:w.v})),data:firebase.firestore.FieldValue.serverTimestamp()}).catch(()=>{});
-  }
-  const st=starsOf(G.hits);
-  $('medal').innerHTML=medal(pass,st,G.hits);
-  $('score').innerHTML=`${G.hits}<small>/50</small>`;
+  data[L.key]={best:Math.max(r.best,G.hits),pass:r.pass||pass};save();
+  const ses={op,nivel:i+1,chave:L.key,nome:L.t,acertos:G.hits,respondidas:G.k,tempo:Math.round(used),passou:pass,
+    erros:G.wrong.map(w=>({a:w.a,b:w.b,r:w.r,v:w.v})),qs:G.log};
+  if(user&&db)db.collection('usuarios').doc(user.uid).collection('sessoes').add({...ses,data:firebase.firestore.FieldValue.serverTimestamp()}).catch(()=>{});
+  else pushLocalSession({...ses,data:Date.now()});
+  $('medal').innerHTML=medal(pass,G.hits);
   const ts=`${used/60|0}:${String(Math.round(used%60)).padStart(2,'0')}`;
   let m;
   if(pass)m=i<LEVELS.length-1?`Parabéns! Você acertou ${Math.round(G.hits/TOTAL*100)}% em ${ts}. O nível ${i+2} foi liberado!`:`Incrível! Você completou o último nível de ${OPS[op].n.toLowerCase()}!`+
       (ORDER[ORDER.indexOf(op)+1]&&opDone(op)?` Agora a ${OPS[ORDER[ORDER.indexOf(op)+1]].n.toLowerCase()} está liberada.`:'');
-  else if(unanswered>0)m=`O tempo acabou com ${unanswered} conta${unanswered>1?'s':''} sem resposta. Você precisa de 45 acertos — faltaram ${PASS-G.hits}. Tente de novo!`;
-  else m=`Você respondeu tudo em ${ts}, mas precisa de 45 acertos — faltaram ${PASS-G.hits}. Quase lá!`;
+  else if(unanswered>0)m=`O tempo acabou com ${unanswered} conta${unanswered>1?'s':''} sem resposta. Você precisa de 45 acertos e faltaram ${PASS-G.hits}. Tente de novo!`;
+  else m=`Você respondeu tudo em ${ts}, mas precisa de 45 acertos e faltaram ${PASS-G.hits}. Quase lá!`;
   $('msg').textContent=m;
   const hasNext=pass&&i<LEVELS.length-1;
-  $('rbtns').innerHTML=(hasNext?`<button class="btn main" data-a="next">Próximo nível</button>`:'')+
-    `<button class="btn${hasNext?'':' main'}" data-a="again">Jogar de novo</button><button class="btn" data-a="home">Níveis</button>`;
-  // erros agrupados
+  $('rbtns').innerHTML=(hasNext?`<button class="btn op" data-a="next">Próximo nível</button>`:'')+
+    `<button class="btn${hasNext?'':' main'}" data-a="again">Jogar de novo</button><button class="btn" data-a="levels">Ver níveis</button>`;
   const seen=new Map();G.wrong.forEach(w=>seen.set(w.a+','+w.b,w));
   $('errs').hidden=!seen.size;
   $('errList').innerHTML=[...seen.values()].map(w=>`<li>${w.a} ${OPS[op].s} ${w.b} = <b>${w.r}</b> <s>${w.v}</s></li>`).join('');
   beep(pass?660:300,.15);if(pass)setTimeout(()=>beep(990,.25),150);
-  G.result=i;
-  show('result');
+  lastResult=i;G=null;
+  show('s-result','replace');
 }
 $('rbtns').addEventListener('click',e=>{
   const a=e.target.closest('.btn')?.dataset.a;if(!a)return;
-  const i=G?G.result:0;
-  if(a==='next')start(i+1);else if(a==='again')start(i);else{G=null;scrollNext=true;renderHome();show('home')}
+  if(a==='next')start(lastResult+1);else if(a==='again')start(lastResult);else{scrollNext=true;renderLevels();show('s-niveis','replace')}
 });
-function medal(pass,st,hits){
+function medal(pass,hits){
   const r=62,c=2*Math.PI*r,f=hits/TOTAL,col=pass?'var(--op)':'var(--soft)';
   const goal=PASS/TOTAL*360-90,gx=75+r*Math.cos(goal*Math.PI/180),gy=75+r*Math.sin(goal*Math.PI/180);
   return `<circle cx="75" cy="75" r="${r}" fill="none" stroke="var(--surf2)" stroke-width="8"/>`+
     `<circle cx="75" cy="75" r="${r}" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(c*f).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 75 75)"/>`+
     `<circle cx="${gx.toFixed(1)}" cy="${gy.toFixed(1)}" r="4" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/>`+
-    `<text x="75" y="80" text-anchor="middle" font-family="Manrope,sans-serif" font-weight="800" font-size="42" fill="var(--ink)" letter-spacing="-1">${hits}</text>`+
+    `<text x="75" y="80" text-anchor="middle" font-family="Manrope,sans-serif" font-weight="800" font-size="42" fill="var(--ink)">${hits}</text>`+
     `<text x="75" y="103" text-anchor="middle" font-family="Manrope,sans-serif" font-weight="600" font-size="13" fill="var(--soft)">de 50</text>`;
 }
-// ---- tema ----
-const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
-const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
-const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
-const paintTheme=()=>{$('themeBtn').innerHTML=isDark()?SUN:MOON};
-$('themeBtn').addEventListener('click',()=>{const t=isDark()?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('cr-theme',t)}catch(e){}paintTheme()});
-paintTheme();
 
-// ---- entrar / criar conta ----
-const ERR={'auth/email-already-in-use':'Esse usuário já existe. Escolha outro nome.','auth/invalid-credential':'Usuário ou senha incorretos.','auth/invalid-login-credentials':'Usuário ou senha incorretos.','auth/wrong-password':'Usuário ou senha incorretos.','auth/user-not-found':'Usuário ou senha incorretos.','auth/network-request-failed':'Sem internet. Verifique a conexão.','auth/too-many-requests':'Muitas tentativas. Espere um pouco e tente de novo.','auth/weak-password':'A senha precisa ter pelo menos 6 caracteres.','auth/operation-not-allowed':'O login com senha ainda não foi ativado no Firebase.'};
-const lerr=t=>{$('lerr').textContent=t};
-async function doAuth(mode){
-  const u=$('lu').value.trim().toLowerCase(),p=$('lp').value;
-  if(!/^[a-z0-9._-]{3,20}$/.test(u))return lerr('Usuário: de 3 a 20 letras ou números, sem espaços nem acentos.');
-  if(p.length<6)return lerr('A senha precisa ter pelo menos 6 caracteres.');
-  if(mode==='up'&&!$('lok').checked)return lerr('Para criar uma conta de responsável, confirme que você é maior de idade.');
-  lerr('');$('lin').disabled=$('signup').disabled=true;
-  try{
-    const em=u+'@fatosbasicos.app';
-    if(mode==='up'){pendingRole='responsavel';await auth.createUserWithEmailAndPassword(em,p)}else await auth.signInWithEmailAndPassword(em,p);
-    $('lp').value='';
-  }catch(e){pendingRole=null;lerr(ERR[e.code]||('Não deu certo ('+(e.code||e.message)+').'))}
-  $('lin').disabled=$('signup').disabled=false;
-}
-$('loginForm').addEventListener('submit',e=>{e.preventDefault();doAuth('in')});
-$('signup').addEventListener('click',()=>doAuth('up'));
-$('guest').addEventListener('click',()=>{guest=true;user=null;loadLocal();scrollNext=true;renderHome();show('home')});
-$('logout').addEventListener('click',()=>{
-  if(user){auth.signOut()}else{guest=false;show('login')}
-});
-function renderUser(){
-  if(!auth)return;
-  $('uname').innerHTML=user?'<b></b>':'Sem conta';if(user)$('uname').firstChild.textContent=user.name;
-  if(!user)setSync('');
-  $('logout').textContent=user?'Sair':'Entrar';
-  const isAluno=!!user&&role==='aluno';
-  $('freeRow').hidden=isAluno;$('resetBtn').hidden=isAluno;
-}
-const _render=renderHome;
-renderHome=function(){_render();renderUser()};
-
-
-// ---- painel do responsável ----
-const TOTAL_LV=ORDER.reduce((n,o)=>n+LV[o].length,0);
-const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let sec=null,students=[],addMode='new',curStudent=null;
+// ================= alunos do responsável =================
+let sec=null,students=[],addMode='new';
+const noun=()=>role==='professor'?{pl:'alunos',sg:'aluno',Pl:'Seus alunos'}:{pl:'crianças',sg:'criança',Pl:'Suas crianças'};
 function secApp(){if(!sec){sec=firebase.initializeApp(window.FIREBASE_CONFIG,'sec');sec.auth().setPersistence(firebase.auth.Auth.Persistence.NONE).catch(()=>{})}return sec}
-function summary(prog){
-  prog=prog||{};let done=0;const per={};
-  for(const o of ORDER){per[o]=LV[o].filter(L=>prog[L.key]&&prog[L.key].pass).length;done+=per[o]}
-  let where='Concluiu todas as operações';
-  for(const o of ORDER){const L=LV[o].find(L=>!(prog[L.key]&&prog[L.key].pass));if(L){where=`${OPS[o].n}: ${L.t}`;break}}
-  if(!Object.keys(prog).length)where='Ainda não jogou';
-  return {done,per,where};
-}
 function when(ts){
-  if(!ts||!ts.toDate)return '—';
-  const d=ts.toDate(),now=new Date(),hm=d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  const day=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime(),diff=(day(now)-day(d))/864e5;
+  const d=ts&&ts.toDate?ts.toDate():(ts?new Date(ts):null);
+  if(!d||isNaN(d))return '—';
+  const now=new Date(),hm=d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const day=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime(),diff=Math.round((day(now)-day(d))/864e5);
   if(diff===0)return 'hoje, '+hm;if(diff===1)return 'ontem, '+hm;
-  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+', '+hm;
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:d.getFullYear()===now.getFullYear()?undefined:'2-digit'})+', '+hm;
 }
-async function openPainel(){
-  show('painel');$('addForm').hidden=true;
-  $('slist').innerHTML='<p class="empty">Carregando alunos…</p>';
+const tsMs=ts=>ts&&ts.toDate?ts.toDate().getTime():(ts?new Date(ts).getTime():0);
+async function openAlunos(){
+  const N=noun();
+  $('alTitle').textContent=N.Pl;
+  $('alLead').textContent=`Toque em um nome para ver o relatório. Use “Adicionar” para criar a conta de ${role==='professor'?'um aluno':'uma criança'}.`;
+  $('addForm').hidden=true;
+  if(cur!=='s-alunos')show('s-alunos');
+  $('slist').innerHTML='<p class="empty">Carregando…</p>';
   try{
     const q=await db.collection('usuarios').where('responsavel','==',user.uid).get();
     students=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
-  }catch(e){$('slist').innerHTML='<p class="empty">Não foi possível carregar os alunos. Verifique a internet e as regras do Firestore.</p>';return}
-  if(!students.length){$('slist').innerHTML='<p class="empty">Nenhum aluno ainda. Use “Adicionar aluno” para criar a primeira conta.</p>';return}
+  }catch(e){$('slist').innerHTML='<p class="empty">Não foi possível carregar a lista. Verifique a internet.</p>';return}
+  if(!students.length){$('slist').innerHTML=`<p class="empty">Nenhum cadastro ainda. Use “Adicionar” para criar a primeira conta.</p>`;return}
   $('slist').innerHTML=students.map((st,k)=>{const sm=summary(st.progresso);
     return `<button class="srow" data-k="${k}"><b>${esc(st.nome)}</b><span class="where">${esc(sm.where)}</span><span class="cnt">${sm.done} de ${TOTAL_LV} níveis</span><span class="when">${when(st.atualizado)}</span></button>`}).join('');
 }
-$('slist').addEventListener('click',e=>{const b=e.target.closest('.srow');if(b)openStudent(students[+b.dataset.k])});
-function openForm(mode){
-  addMode=mode;$('aok').hidden=true;$('addForm').hidden=false;$('aerr').textContent='';$('au').value='';$('ap').value='';
-  $('addTitle').textContent=mode==='new'?'Novo aluno':'Vincular aluno que já tem conta';
-  $('addHint').textContent=mode==='new'?'Escolha um usuário (sem espaços nem acentos) e uma senha de pelo menos 6 caracteres. Passe esses dados para o aluno entrar.':'Digite o usuário e a senha que o aluno já usa. O progresso dele é mantido.';
-  $('asub').textContent=mode==='new'?'Criar conta do aluno':'Vincular';
+$('slist').addEventListener('click',e=>{const b=e.target.closest('.srow');if(!b)return;const st=students[+b.dataset.k];openReport({uid:st.id,nome:st.nome,doc:st,self:false})});
+function openForm(m){
+  addMode=m;$('aok').hidden=true;$('addForm').hidden=false;$('aerr').textContent='';$('au').value='';$('ap').value='';
+  const N=noun();
+  $('addTitle').textContent=m==='new'?`Nova conta de ${N.sg}`:`Vincular ${N.sg} que já tem conta`;
+  $('addHint').textContent=m==='new'?'Escolha um usuário (sem espaços nem acentos) e uma senha de pelo menos 6 caracteres. Depois passe esses dados para entrar.':'Digite o usuário e a senha que já são usados. O progresso é mantido.';
+  $('asub').textContent=m==='new'?'Criar conta':'Vincular';
   $('au').focus();
 }
 $('addBtn').addEventListener('click',()=>openForm('new'));
@@ -625,81 +807,174 @@ $('addForm').addEventListener('submit',async e=>{
   const u=$('au').value.trim().toLowerCase(),p=$('ap').value,err=t=>{$('aerr').textContent=t};
   if(!/^[a-z0-9._-]{3,20}$/.test(u))return err('Usuário: de 3 a 20 letras ou números, sem espaços nem acentos.');
   if(p.length<6)return err('A senha precisa ter pelo menos 6 caracteres.');
-  if(u===user.name)return err('Esse é o seu próprio usuário. Use outro para o aluno.');
+  if(u===user.name)return err('Esse é o seu próprio usuário.');
   err('');$('asub').disabled=true;
   const s2=secApp(),em=u+'@fatosbasicos.app';
   try{
     const cred=addMode==='new'?await s2.auth().createUserWithEmailAndPassword(em,p):await s2.auth().signInWithEmailAndPassword(em,p);
     const ref=s2.firestore().collection('usuarios').doc(cred.user.uid);
-    if(addMode==='link'){const sn=await ref.get();if(sn.exists&&sn.data().papel==='responsavel'){await s2.auth().signOut();$('asub').disabled=false;return err('Essa é uma conta de responsável, não de aluno.')}}
+    if(addMode==='link'){const sn=await ref.get();if(sn.exists&&ADULT(sn.data().papel)){await s2.auth().signOut();$('asub').disabled=false;return err('Essa é uma conta de adulto, não de aluno.')}}
     await ref.set({papel:'aluno',nome:u,responsavel:user.uid,vinculado:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     await s2.auth().signOut();
     $('addForm').hidden=true;$('aok').hidden=false;
-    $('aok').innerHTML=addMode==='new'?`Conta criada. Usuário: <code>${esc(u)}</code> · Senha: <code>${esc(p)}</code>. Anote e passe para o aluno.`:`${esc(u)} foi vinculado à sua conta.`;
-    openPainel();show('painel');
-  }catch(e2){try{await s2.auth().signOut()}catch(_){}
-    err(ERR[e2.code]||('Não deu certo ('+(e2.code||e2.message)+').'))}
+    $('aok').innerHTML=addMode==='new'?`Conta criada. Usuário: <code>${esc(u)}</code> · Senha: <code>${esc(p)}</code>. Anote e passe adiante.`:`${esc(u)} foi vinculado à sua conta.`;
+    openAlunos();
+  }catch(e2){try{await s2.auth().signOut()}catch(_){}err(errMsg(e2))}
   $('asub').disabled=false;
 });
-async function openStudent(st){
-  curStudent=st;show('aluno');
-  const sm=summary(st.progresso);
-  $('sname').textContent=st.nome;
-  $('ssub').textContent=`${sm.where}. Última atividade: ${when(st.atualizado)}.`;
-  const COL={add:'#2f5bea',sub:'#c2410c',mul:'#0f766e',div:'#7c3aed'};
-  $('sops').innerHTML=ORDER.map(o=>`<div class="opc" style="--c:${COL[o]}"><div class="t">${OPS[o].n}<span>${sm.per[o]} de ${LV[o].length}</span></div><div class="bar"><i style="width:${sm.per[o]/LV[o].length*100}%"></i></div></div>`).join('');
-  $('slib').checked=!!st.liberado;
-  $('smiss').innerHTML='<p class="tag">Carregando…</p>';$('ssess').innerHTML='';
-  let ses=[];
-  try{const q=await db.collection('usuarios').doc(st.id).collection('sessoes').orderBy('data','desc').limit(100).get();ses=q.docs.map(d=>d.data())}
-  catch(e){$('smiss').innerHTML='<p class="empty">Não foi possível carregar as partidas.</p>';return}
-  if(curStudent!==st)return;
-  const cnt=new Map();
-  ses.forEach(x=>(x.erros||[]).forEach(w=>{const k=`${w.a} ${OPS[x.op].s} ${w.b} = ${w.r}`;cnt.set(k,(cnt.get(k)||0)+1)}));
-  const top=[...cnt.entries()].sort((a,b)=>b[1]-a[1]).slice(0,12);
-  $('smiss').innerHTML=top.length?`<div class="misses">${top.map(([k,n])=>`<span class="miss">${esc(k)}<small>${n}×</small></span>`).join('')}</div>`:'<p class="empty">Nenhum erro registrado ainda.</p>';
-  $('ssess').innerHTML=ses.length?`<table class="ses"><thead><tr><th>Quando</th><th>Operação</th><th>Nível</th><th class="num">Acertos</th><th class="num">Tempo</th><th>Resultado</th></tr></thead><tbody>${ses.map(x=>{
-    const t=x.tempo||0;return `<tr><td>${when(x.data)}</td><td>${esc(OPS[x.op]?OPS[x.op].n:x.op)}</td><td>${esc(x.nivel)}. ${esc(x.nome)}</td><td class="num">${esc(x.acertos)}/50</td><td class="num">${t/60|0}:${String(t%60).padStart(2,'0')}</td><td>${x.passou?'<span class="tagok">Passou</span>':'<span class="tagno">Não passou</span>'}</td></tr>`}).join('')}</tbody></table>`:'<p class="empty">Nenhuma partida registrada ainda. As partidas aparecem aqui depois que o aluno jogar.</p>';
-}
-$('back').addEventListener('click',openPainel);
-$('slib').addEventListener('change',async e=>{
-  if(!curStudent)return;const v=e.target.checked;
-  try{await db.collection('usuarios').doc(curStudent.id).update({liberado:v});curStudent.liberado=v}
-  catch(_){e.target.checked=!v}
-});
 
-if(auth){
-  show('login');
-  auth.onAuthStateChanged(async u=>{
-    if(u){
-      guest=false;user={uid:u.uid,name:(u.email||'').split('@')[0]};
-      const ref=db.collection('usuarios').doc(u.uid),FV=firebase.firestore.FieldValue;
-      if(pendingRole==='responsavel'){
-        pendingRole=null;
-        try{await ref.set({papel:'responsavel',nome:user.name,criado:FV.serverTimestamp()},{merge:true})}catch(e){}
-        try{localStorage.setItem('cr-role-'+u.uid,'responsavel')}catch(e){}
-      }
-      let d=null;
-      try{const snap=await ref.get();d=snap.exists?snap.data():{}}catch(e){}
-      let cachedRole=null;try{cachedRole=localStorage.getItem('cr-role-'+u.uid)}catch(e){}
-      role=(d?d.papel:cachedRole)==='responsavel'?'responsavel':'aluno';
-      try{localStorage.setItem('cr-role-'+u.uid,role)}catch(e){}
-      if(role==='responsavel'){renderUser();setSync('');openPainel();return}
-      free=!!(d&&d.liberado);
-      loadLocal();
-      if(d){
-        const cloud=d.progresso||{},before=JSON.stringify(cloud);
-        data=merge(data,cloud);
-        if(JSON.stringify(data)!==before)save();else{try{localStorage.setItem(lsKey(),JSON.stringify(data))}catch(e){}setSync('Progresso salvo na nuvem')}
-      }else setSync('Sem conexão — usando o progresso deste aparelho');
-      scrollNext=true;renderHome();show('home');
-    }else{
-      user=null;role=null;free=localFree;if(G){G.over=true;clearTimeout(G.timer)}
-      if(!guest)show('login');
+// ================= relatório =================
+let REP=null;
+async function openReport(t){
+  REP={...t,ses:[],prog:{},mapOp:null,shown:30,open:null};
+  $('rName').textContent=t.self?'Meu relatório':t.nome;
+  $('rSub').textContent='Carregando…';$('rBody').innerHTML='';
+  show('s-rel');
+  try{
+    if(t.local){REP.prog=data;REP.ses=localSessions()}
+    else{
+      const d=t.doc||(await db.collection('usuarios').doc(t.uid).get()).data()||{};
+      REP.doc=d;REP.prog=t.self?merge(d.progresso||{},data):(d.progresso||{});
+      const q=await db.collection('usuarios').doc(t.uid).collection('sessoes').orderBy('data','desc').limit(300).get();
+      REP.ses=q.docs.map(x=>x.data());
     }
+  }catch(e){$('rSub').textContent='Não foi possível carregar o relatório. Verifique a internet.';return}
+  renderReport();
+}
+$('relBack').addEventListener('click',()=>{if(REP&&!REP.self)openAlunos();else goHome()});
+function factKey(o,q){ // linha = o outro número; coluna = o dígito treinado
+  return o==='add'||o==='mul'?{row:q.a,col:q.b}:{row:q.r,col:q.b};
+}
+const fmtS=ms=>(ms/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' s';
+function renderReport(){
+  const R=REP,ses=R.ses,sm=summary(R.prog),N=ses.length;
+  const sumA=ses.reduce((n,x)=>n+(x.acertos||0),0),sumR=ses.reduce((n,x)=>n+(x.respondidas||0),0),sumT=ses.reduce((n,x)=>n+(x.tempo||0),0);
+  let qn=0,qms=0;ses.forEach(x=>(x.qs||[]).forEach(q=>{qn++;qms+=q.ms||0}));
+  const wk=Date.now()-7*864e5,last7=ses.filter(x=>tsMs(x.data)>=wk).length;
+  const passN=ses.filter(x=>x.passou).length;
+  $('rSub').textContent=N?`${sm.where}. Última partida: ${when(ses[0].data)}.`:'Ainda não há partidas registradas.';
+  const mins=Math.round(sumT/60);
+  const kpi=(l,v,s)=>`<div class="kpi"><small>${l}</small><b>${v}</b>${s?`<span>${s}</span>`:''}</div>`;
+  let h=`<div class="kpis">`+
+    kpi('Partidas',N,last7?`${last7} nos últimos 7 dias`:'nenhuma nos últimos 7 dias')+
+    kpi('Níveis vencidos',sm.done,`de ${TOTAL_LV} no total`)+
+    kpi('Acertos',sumR?Math.round(sumA/sumR*100)+'%':'—',sumR?`${sumA} de ${sumR} respostas`:'')+
+    kpi('Tempo por conta',qn?fmtS(qms/qn):'—',`${mins<60?mins+' min':Math.floor(mins/60)+' h '+(mins%60)+' min'} de treino`)+
+    `</div>`;
+  if(!N){
+    h+=`<div class="panel"><p class="empty" style="border:0">As partidas aparecem aqui depois ${R.self?'que você jogar':'que '+esc(R.nome)+' jogar'} um nível.</p></div>`;
+    h+=libBox();$('rBody').innerHTML=h;bindLib();return;
+  }
+  // gráfico + progresso
+  h+=`<div class="rgrid two">
+    <div class="panel"><h2 class="h2">Acertos por partida <small>últimas ${Math.min(30,N)}, meta de 45</small></h2><div class="fig" id="chart"><svg></svg></div>
+      <div class="legend"><span><i style="background:var(--op)"></i>Passou</span><span><i style="background:var(--surf2)"></i>Não passou</span><span><i style="background:var(--ink);height:2px;vertical-align:3px"></i>Meta</span></div></div>
+    <div class="panel"><h2 class="h2">Progresso por operação</h2><div class="opbars">${ORDER.map(o=>`<div class="opb" style="--c:${OPCOL[o]}"><div class="t">${OPS[o].n}<span>${sm.per[o]} de ${LV[o].length}</span></div><div class="bar"><i style="width:${sm.per[o]/LV[o].length*100}%"></i></div></div>`).join('')}</div>
+      <p class="note">Partidas com aprovação: <b>${passN}</b> de ${N}.</p></div>
+  </div>`;
+  // mapa dos fatos + erros/lentas
+  const opsWith=ORDER.filter(o=>ses.some(x=>x.op===o&&(x.qs||[]).length));
+  if(!R.mapOp||!opsWith.includes(R.mapOp))R.mapOp=opsWith.includes(ses[0].op)?ses[0].op:opsWith[0];
+  const agg=new Map();
+  ses.forEach(x=>(x.qs||[]).forEach(q=>{const k=`${x.op}|${q.a}|${q.b}`;const g=agg.get(k)||{o:x.op,a:q.a,b:q.b,r:q.r,n:0,ok:0,ms:0};g.n++;if(q.v===q.r)g.ok++;g.ms+=q.ms||0;agg.set(k,g)}));
+  ses.forEach(x=>{if(x.qs&&x.qs.length)return;(x.erros||[]).forEach(w=>{const k=`${x.op}|${w.a}|${w.b}`;const g=agg.get(k)||{o:x.op,a:w.a,b:w.b,r:w.r,n:0,ok:0,ms:0,old:1};g.n++;agg.set(k,g)})});
+  const all=[...agg.values()];
+  const miss=all.filter(g=>g.n-g.ok>0).sort((x,y)=>(y.n-y.ok)-(x.n-x.ok)||x.ok/x.n-y.ok/y.n).slice(0,10);
+  const slow=all.filter(g=>!g.old&&g.n>=2).sort((x,y)=>y.ms/y.n-x.ms/x.n).slice(0,10);
+  const lab=g=>`${g.a} ${OPS[g.o].s} ${g.b} = ${g.r}`;
+  h+=`<div class="rgrid two">
+    <div class="panel"><h2 class="h2">Mapa dos fatos <small>verde: acerta sempre · vermelho: erra com frequência</small></h2>
+      ${opsWith.length?`<div class="mtabs" id="mtabs">${opsWith.map(o=>`<button class="mtab" data-o="${o}" aria-pressed="${o===R.mapOp}">${OPS[o].n}</button>`).join('')}</div><div id="fmap"></div>
+      <p class="note" style="margin-top:10px">Cada quadrado é uma conta. Coluna: o dígito treinado. Linha: ${R.mapOp==='add'||R.mapOp==='mul'?'o outro número':'o resultado'}. Toque para ver os detalhes.</p><p class="note" id="fdet" style="margin-top:4px;color:var(--ink);font-weight:600"></p>`:'<p class="empty">O mapa aparece a partir das próximas partidas.</p>'}
+    </div>
+    <div class="panel"><h2 class="h2">Contas que mais erra</h2>
+      ${miss.length?`<div class="chips">${miss.map(g=>`<span class="chip bad">${lab(g)}<small>${g.n-g.ok}× errada${g.old?'':' de '+g.n}</small></span>`).join('')}</div>`:'<p class="note" style="margin:0">Nenhum erro registrado. Muito bem!</p>'}
+      <h2 class="h2" style="margin-top:22px">Contas mais demoradas</h2>
+      ${slow.length?`<div class="chips">${slow.map(g=>`<span class="chip">${lab(g)}<small>${fmtS(g.ms/g.n)}</small></span>`).join('')}</div>`:'<p class="note" style="margin:0">Aparece depois de algumas partidas.</p>'}
+    </div>
+  </div>`;
+  // histórico
+  const list=ses.slice(0,R.shown);
+  h+=`<div class="panel" style="padding:18px 0 8px"><h2 class="h2" style="padding:0 18px">Histórico de partidas <small>toque em uma partida para ver cada conta</small></h2><div id="hist">${list.map((x,k)=>histRow(x,k)).join('')}</div>
+    ${N>R.shown?`<div style="padding:0 18px"><button class="btn more" id="more">Mostrar mais partidas</button></div>`:''}</div>`;
+  h+=libBox();
+  $('rBody').innerHTML=h;
+  drawChart(ses.slice(0,30).reverse());
+  if(opsWith.length)drawMap(agg);
+  $('mtabs')&&$('mtabs').addEventListener('click',e=>{const b=e.target.closest('.mtab');if(!b)return;R.mapOp=b.dataset.o;renderReport()});
+  $('hist').addEventListener('click',e=>{const b=e.target.closest('.hrow');if(!b)return;const k=+b.dataset.k;R.open=R.open===k?null:k;
+    $('hist').innerHTML=ses.slice(0,R.shown).map((x,j)=>histRow(x,j)).join('')});
+  $('more')&&$('more').addEventListener('click',()=>{R.shown+=30;renderReport()});
+  bindLib();
+}
+function histRow(x,k){
+  const t=x.tempo||0,o=OPS[x.op]||{n:x.op,s:'?'};
+  let h=`<button class="hrow" data-k="${k}" aria-expanded="${REP.open===k}"><span class="l"><b>${esc(o.n)}: ${esc(x.nome)}</b><span>${when(x.data)} · nível ${esc(x.nivel)} · ${t/60|0}:${String(t%60).padStart(2,'0')}</span></span>
+    <span class="r"><b>${esc(x.acertos)}/50</b><span class="${x.passou?'pass':'fail'}">${x.passou?'Passou':'Não passou'}</span></span></button>`;
+  if(REP.open===k){
+    const qs=x.qs||[];
+    h+=`<div class="hdet">${qs.length?`<div class="chips">${qs.map(q=>q.v===q.r?`<span class="qc" title="${fmtS(q.ms||0)}">${q.a} ${o.s} ${q.b} = ${q.r}</span>`:`<span class="qc bad" title="Respondeu ${q.v} · ${fmtS(q.ms||0)}">${q.a} ${o.s} ${q.b} = <s>${q.v}</s>${q.r}</span>`).join('')}</div>
+      ${qs.length<50?`<p class="note">${50-qs.length} conta${50-qs.length>1?'s':''} ficaram sem resposta quando o tempo acabou.</p>`:''}`
+      :`<p class="note" style="margin:0">Partida antiga: só os erros foram registrados.</p>${(x.erros||[]).length?`<div class="chips" style="margin-top:8px">${x.erros.map(w=>`<span class="qc bad">${w.a} ${o.s} ${w.b} = <s>${w.v}</s>${w.r}</span>`).join('')}</div>`:''}`}</div>`;
+  }
+  return h;
+}
+function libBox(){
+  if(REP.self||REP.local||!REP.doc)return '';
+  return `<div class="panel" style="margin-top:14px"><label class="chk"><input type="checkbox" id="slib" ${REP.doc.liberado?'checked':''}> Liberar todos os níveis para ${esc(REP.nome)}</label></div>`;
+}
+function bindLib(){
+  const c=$('slib');if(!c)return;
+  c.addEventListener('change',async e=>{const v=e.target.checked;
+    try{await db.collection('usuarios').doc(REP.uid).update({liberado:v});REP.doc.liberado=v;const st=students.find(s=>s.id===REP.uid);if(st)st.liberado=v}catch(_){e.target.checked=!v}});
+}
+let chartRO=null;
+function drawChart(rows){
+  const box=$('chart');if(!box)return;const s=box.querySelector('svg');
+  const draw=()=>{
+    const W=box.clientWidth,H=box.clientHeight,pl=26,pr=6,pt=8,pb=22,iw=W-pl-pr,ih=H-pt-pb,n=rows.length;
+    if(W<10)return;
+    const y=v=>pt+ih-(v/50)*ih,bw=Math.max(3,Math.min(26,iw/n*.7)),step=iw/n;
+    let g='';
+    [0,25,50].forEach(v=>{g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--soft)">${v}</text>`});
+    rows.forEach((x,i)=>{const cx=pl+step*i+step/2,v=x.acertos||0;
+      g+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(pt+ih-y(v)).toFixed(1)}" rx="3" fill="${x.passou?'var(--op)':'var(--surf2)'}"><title>${when(x.data)} · ${esc((OPS[x.op]||{}).n||'')} ${esc(x.nome)}: ${v}/50</title></rect>`});
+    g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(45)}" y2="${y(45)}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+    if(n){g+=`<text x="${pl}" y="${H-4}" font-size="11" fill="var(--soft)">${when(rows[0].data).split(',')[0]}</text><text x="${W-pr}" y="${H-4}" font-size="11" fill="var(--soft)" text-anchor="end">${when(rows[n-1].data).split(',')[0]}</text>`}
+    s.innerHTML=g;
+  };
+  if(chartRO)chartRO.disconnect();chartRO=new ResizeObserver(draw);chartRO.observe(box);draw();
+}
+function drawMap(agg){
+  const o=REP.mapOp,cols=o==='div'?[1,2,3,4,5,6,7,8,9]:[0,1,2,3,4,5,6,7,8,9],rows=[0,1,2,3,4,5,6,7,8,9];
+  const cell=new Map();
+  for(const g of agg.values()){if(g.o!==o||g.old)continue;const fk=factKey(o,g);cell.set(fk.row+','+fk.col,g)}
+  let h=`<div class="fmap" style="grid-template-columns:22px repeat(${cols.length},minmax(0,1fr))"><div class="hd"></div>${cols.map(c=>`<div class="hd">${c}</div>`).join('')}`;
+  rows.forEach(r=>{h+=`<div class="hd">${r}</div>`;cols.forEach(c=>{const g=cell.get(r+','+c);
+    if(!g){h+=`<div class="c" title="Ainda não apareceu"></div>`;return}
+    const acc=g.ok/g.n,cls=acc>=.9?'c3':acc>=.7?'c2':'c1';
+    h+=`<div class="${cls}" data-f="${r},${c}" title="${g.a} ${OPS[o].s} ${g.b} = ${g.r}: ${g.ok} de ${g.n} certas, ${fmtS(g.ms/g.n)}">${Math.round(acc*100)}</div>`})});
+  $('fmap').innerHTML=h+'</div>';
+  $('fmap').onclick=e=>{const d=e.target.closest('[data-f]');if(!d)return;const g=cell.get(d.dataset.f);
+    $('fdet').textContent=`${g.a} ${OPS[o].s} ${g.b} = ${g.r}: acertou ${g.ok} de ${g.n} vezes, ${fmtS(g.ms/g.n)} em média.`};
+}
+
+// ================= tema =================
+const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+const paintTheme=()=>{$('themeBtn').innerHTML=isDark()?SUN:MOON};
+$('themeBtn').addEventListener('click',()=>{const t=isDark()?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('cr-theme',t)}catch(e){}paintTheme();if(cur==='s-rel'&&REP)renderReport()});
+paintTheme();
+
+// ================= início do app =================
+if(auth){
+  auth.onAuthStateChanged(u=>{
+    if(u)afterLogin(u);
+    else{user=null;role=null;free=localFree;if(!guest)show('s-quem','replace')}
   });
 }else{
-  guest=true;loadLocal();renderHome();show('home');
+  guest=true;loadLocal();renderInicio();show('s-inicio','replace');
 }
 }
 </script>
