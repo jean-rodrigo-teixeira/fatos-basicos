@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fatos Básicos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: alegre, direto, feito para crianças — botões grandes, poucas palavras
+   IDEA: um caderno de exercícios com cartões de conta e uma ampulheta
+   PICTURE: o próprio jogo — cartão grande com a conta, 4 respostas, barra de tempo
+   COLOUR and TYPE: cada operação tem sua cor; Baloo 2 arredondada
+   LAYOUT: uma coluna centrada; mapa de níveis em grade que quebra no celular */
+:root{color-scheme:light dark;
+  --bg:light-dark(#fff8e7,#14162b);--card:light-dark(#ffffff,#1f2240);--ink:light-dark(#1d1b3a,#f4f2ff);
+  --soft:light-dark(#6b6890,#a9a6cf);--line:light-dark(#ece4cf,#2e3260);
+  --ok:#17a05d;--bad:#e5484d;--op:#2f6fed;--opd:light-dark(#dfe9ff,#22305e)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+body[data-op=sub]{--op:#e8590c;--opd:light-dark(#ffe6d6,#4a2a16)}
+body[data-op=mul]{--op:#12a17a;--opd:light-dark(#d5f5ea,#173f35)}
+body[data-op=div]{--op:#8b4fe8;--opd:light-dark(#ece0ff,#35245a)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 "Baloo 2",system-ui,sans-serif;overflow-x:clip;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible{outline:3px solid var(--op);outline-offset:3px}
+.wrap{max-width:860px;margin:0 auto;padding:clamp(16px,4vw,40px) max(4vw,14px) 48px}
+h1{font-size:clamp(34px,6vw,50px);line-height:1.05;margin:0;font-weight:800}
+h1 b{color:var(--op)}
+.sub{color:var(--soft);margin:4px 0 22px}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.tab{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:10px 6px;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .15s}
+.tab .s{font-size:32px;line-height:1;font-weight:800}
+.tab .n{font-size:14px;color:var(--soft)}
+.tab{position:relative}.tab:disabled{opacity:.45;cursor:not-allowed}
+.tab[aria-pressed=true]{border-color:var(--op);background:var(--opd);transform:translateY(-2px)}
+.tab[aria-pressed=true] .s{color:var(--op)}
+.prog{display:flex;align-items:center;gap:12px;margin:0 0 14px;font-weight:700}
+.bar{flex:1;height:14px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--op);border-radius:9px;transition:width .3s}
+.grp{margin-bottom:18px}
+.grp h2{font-size:22px;margin:0 0 8px;font-weight:800;color:var(--op);display:flex;align-items:baseline;gap:10px}
+.grp h2 small{font-size:15px;color:var(--soft);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.lv{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:10px 12px;text-align:left;min-height:96px;display:flex;flex-direction:column;gap:2px;position:relative}
+.lv .num{font-size:13px;color:var(--soft);font-weight:700}
+.lv .t{font-weight:800;font-size:18px;line-height:1.15}
+.lv .st{margin-top:auto;font-size:14px;color:var(--soft)}
+.lv .stars{color:#f5b300;letter-spacing:2px}
+.lv.done{border-color:var(--op)}
+.lv.next{border-color:var(--op);box-shadow:0 5px 0 var(--op)}
+.lv:disabled{opacity:.45;cursor:not-allowed}
+.lock{position:absolute;right:10px;top:8px;width:18px;height:18px}
+.foot{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px 18px;color:var(--soft);font-size:15px;align-items:center}
+.chk{display:flex;align-items:center;gap:8px;min-height:44px}
+.chk input{width:22px;height:22px;accent-color:var(--op)}
+.link{text-decoration:underline;min-height:44px;color:var(--soft)}
+.rules{background:var(--opd);border-radius:18px;padding:12px 16px;margin:0 0 20px;font-size:16px}
+/* jogo */
+.top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.x{width:44px;height:44px;border-radius:14px;background:var(--card);border:3px solid var(--line);font-size:22px;font-weight:800;line-height:1}
+.ttl{flex:1;font-weight:800;font-size:18px;line-height:1.1}
+.ttl small{display:block;color:var(--soft);font-weight:500;font-size:14px}
+.clock{font-weight:800;font-size:28px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.clock.low{color:var(--bad)}
+.tbar{height:16px;border-radius:9px;background:var(--line);overflow:hidden;margin-bottom:10px}
+.tbar i{display:block;height:100%;width:100%;background:var(--op);transform-origin:left;border-radius:9px}
+.stats{display:flex;justify-content:space-between;font-weight:700;color:var(--soft);margin-bottom:14px;font-size:16px}
+.stats b{color:var(--ink)}
+.q{background:var(--card);border:4px solid var(--op);border-radius:28px;box-shadow:0 8px 0 var(--op);text-align:center;padding:clamp(22px,5vw,44px) 10px;margin-bottom:26px;position:relative}
+.q .expr{font-size:clamp(64px,16vw,120px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.q .expr span{color:var(--op)}
+.q .cd{font-size:clamp(80px,20vw,140px);font-weight:800;line-height:1;color:var(--op)}
+.ans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.a{background:var(--card);border:4px solid var(--line);border-radius:22px;min-height:clamp(84px,16vw,110px);font-size:clamp(40px,9vw,58px);font-weight:800;box-shadow:0 6px 0 var(--line);font-variant-numeric:tabular-nums;position:relative;transition:transform .08s}
+.a:active{transform:translateY(4px);box-shadow:0 2px 0 var(--line)}
+.a kbd{position:absolute;left:12px;top:6px;font:700 13px "Baloo 2",sans-serif;color:var(--soft)}
+.a.ok{background:var(--ok);border-color:var(--ok);color:#fff;box-shadow:0 6px 0 #0d6e3f}
+.a.bad{background:var(--bad);border-color:var(--bad);color:#fff;box-shadow:0 6px 0 #a3262a}
+.a:disabled{cursor:default}
+/* resultado */
+.res{text-align:center}
+.medal{width:150px;height:150px;margin:0 auto 6px;display:block}
+.big{font-size:clamp(56px,14vw,96px);font-weight:800;line-height:1;margin:6px 0}
+.big small{font-size:.4em;color:var(--soft)}
+.msg{font-size:20px;margin:6px auto 18px;max-width:30em}
+.btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:10px 0 26px}
+.btn{min-height:54px;padding:8px 22px;border-radius:16px;font-weight:800;font-size:19px;background:var(--card);border:3px solid var(--line)}
+.btn.main{background:var(--op);border-color:var(--op);color:#fff;box-shadow:0 5px 0 color-mix(in srgb,var(--op) 70%,#000)}
+.errs{text-align:left;background:var(--card);border:3px solid var(--line);border-radius:18px;padding:12px 16px}
+.errs h3{margin:0 0 6px;font-size:19px}
+.errs ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px 14px}
+.errs li{font-variant-numeric:tabular-nums;white-space:nowrap}
+.errs s{color:var(--bad)}.errs b{color:var(--ok)}
+[hidden]{display:none!important}
+@keyframes pop{0%{transform:scale(.85);opacity:.3}100%{transform:none;opacity:1}}
+.pop{animation:pop .18s ease-out}
+@media (prefers-reduced-motion:reduce){.pop{animation:none}.tab,.a,.bar i{transition:none}}
+@media(max-width:600px){.tab .n{font-size:12px}.ans{gap:10px}}
+</style>
+</head>
+<body data-op="add">
+<main class="wrap">
+
+<section id="home">
+  <h1>Fatos <b>Básicos</b></h1>
+  <p class="sub">Treino de contas de 1 dígito contra o relógio</p>
+  <div class="tabs" id="tabs" role="group" aria-label="Operação"></div>
+  <div class="rules">Cada nível tem <b>50 contas</b> em <b>2 minutos</b>. Acerte <b>45 ou mais (90%)</b> para liberar o próximo nível.</div>
+  <p class="sub" id="opNote" hidden></p>
+  <div class="prog"><span id="progTxt"></span><div class="bar"><i id="progBar"></i></div></div>
+  <div class="levels" id="levels"></div>
+  <div class="foot">
+    <label class="chk"><input type="checkbox" id="snd" checked> Sons</label>
+    <label class="chk"><input type="checkbox" id="free"> Modo professor (todos os níveis liberados)</label>
+    <button class="link" id="resetBtn">Apagar progresso</button>
+  </div>
+</section>
+
+<section id="game" hidden>
+  <div class="top">
+    <button class="x" id="quit" aria-label="Sair do nível">×</button>
+    <div class="ttl" id="gTitle"></div>
+    <div class="clock" id="clock">2:00</div>
+  </div>
+  <div class="tbar"><i id="tbar"></i></div>
+  <div class="stats"><span>Conta <b id="qn">0</b>/50</span><span>Acertos <b id="hits">0</b></span><span>Precisa <b>45</b></span></div>
+  <div class="q" id="qbox"><div class="expr" id="expr"></div></div>
+  <div class="ans" id="ans"></div>
+</section>
+
+<section id="result" class="res" hidden>
+  <svg class="medal" id="medal" viewBox="0 0 150 150" aria-hidden="true"></svg>
+  <div class="big" id="score"></div>
+  <p class="msg" id="msg"></p>
+  <div class="btns" id="rbtns"></div>
+  <div class="errs" id="errs" hidden><h3>Para treinar</h3><ul id="errList"></ul></div>
+</section>
+
+<section id="confirm" hidden style="text-align:center;padding-top:40px">
+  <h1 style="font-size:34px">Apagar todo o progresso?</h1>
+  <p class="msg">Os níveis voltam a ficar bloqueados nas quatro operações.</p>
+  <div class="btns"><button class="btn" id="cNo">Cancelar</button><button class="btn main" id="cYes" style="background:var(--bad);border-color:var(--bad)">Apagar</button></div>
+</section>
+
+</main>
+<script>
+{
+const TOTAL=50,TIME=120,PASS=45;
+const OPS={add:{s:'+',n:'Soma'},sub:{s:'−',n:'Subtração'},mul:{s:'×',n:'Multiplicação'},div:{s:'÷',n:'Divisão'}};
+const VERB={add:'Somas',sub:'Subtrações',mul:'Multiplicações',div:'Divisões'};
+// Níveis por dígito novo d: "com d", depois "com k ou d" para cada k anterior, depois "com todos até d".
+// O dígito treinado é sempre o 2º termo (na subtração, o subtraendo; na divisão, o divisor — sem zero).
+const joinOu=a=>a.length===1?String(a[0]):a.slice(0,-1).join(', ')+' ou '+a[a.length-1];
+function buildLevels(o){
+  const first=o==='div'?1:0,out=[];
+  for(let d=first;d<=9;d++){
+    const g=[{set:[d]}];
+    for(let k=first;k<d;k++)g.push({set:[k,d]});
+    const all=[];for(let k=first;k<=d;k++)all.push(k);
+    if(all.length>2)g.push({set:all});
+    g.forEach(L=>{L.d=d;L.t=(L.set.length===10-first&&d===9)?'Todos os dígitos':'Com '+joinOu(L.set);L.key=o+':'+L.set.join('');out.push(L)});
+  }
+  return out;
+}
+const LV={};for(const o of['add','sub','mul','div'])LV[o]=buildLevels(o);
+let LEVELS=LV.add;
+const $=id=>document.getElementById(id);
+let op='add',free=false,sound=true,data={};
+try{data=JSON.parse(localStorage.getItem('cr-data2')||'{}');free=localStorage.getItem('cr-free')==='1';sound=localStorage.getItem('cr-snd')!=='0';op=localStorage.getItem('cr-op')||'add'}catch(e){}
+if(!OPS[op])op='add';
+LEVELS=LV[op];
+const save=()=>{try{localStorage.setItem('cr-data2',JSON.stringify(data));localStorage.setItem('cr-free',free?'1':'0');localStorage.setItem('cr-snd',sound?'1':'0');localStorage.setItem('cr-op',op)}catch(e){}};
+const rec=(o,i)=>data[LV[o][i].key]||{best:0,pass:false};
+const ORDER=['add','sub','mul','div'];
+const opDone=o=>LV[o].every((L,i)=>rec(o,i).pass);
+const opUnlocked=o=>{const k=ORDER.indexOf(o);return free||k===0||opDone(ORDER[k-1])};
+const unlocked=(o,i)=>free||(opUnlocked(o)&&(i===0||rec(o,i-1).pass));
+const starsOf=b=>b>=50?3:b>=48?2:b>=PASS?1:0;
+
+// ---- geração das contas ----
+function facts(o,set){
+  const m=new Map(),add=(a,b,r)=>m.set(a+','+b,{a,b,r});
+  for(const s of set){
+    for(let x=0;x<=9;x++){
+      if(o==='add')add(x,s,x+s);                          // x + s
+      if(o==='mul')add(x,s,x*s);                          // x × s
+      if(o==='sub')add(x+s,s,x);                          // (x+s) − s = x, de 0 a 9
+      if(o==='div'&&s>0)add(x*s,s,x);                     // (x·s) ÷ s = x, de 0 a 9
+    }
+  }
+  return [...m.values()];
+}
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function buildRound(o,set){
+  const pool=facts(o,set),out=[];
+  while(out.length<TOTAL){
+    const deck=shuffle(pool.slice());
+    if(out.length&&deck.length>1&&deck[0]===out[out.length-1])deck.push(deck.shift());
+    out.push(...deck);
+  }
+  return out.slice(0,TOTAL).map(f=>({...f,opts:options(o,f)}));
+}
+function options(o,f){
+  const {a,b,r}=f,c=new Set();
+  [r+1,r-1,r+2,r-2,r+3].forEach(v=>c.add(v));
+  if(o==='add'){c.add(Math.abs(a-b));c.add(r+10);c.add(a*b)}
+  if(o==='mul'){c.add(a+b);c.add(r+a);c.add(r-b);c.add(r+b)}
+  if(o==='sub'){c.add(a+b);c.add(r+10)}
+  if(o==='div'){c.add(b);c.add(a-b)}
+  const max=o==='add'?18:o==='mul'?81:o==='sub'?18:81;
+  let cand=shuffle([...c].filter(v=>v>=0&&v!==r&&v<=max));
+  // prioriza vizinhos próximos para ficar desafiador, mas mistura
+  cand.sort((x,y)=>Math.abs(x-r)-Math.abs(y-r)+(Math.random()-.5)*4);
+  const pick=cand.slice(0,3);
+  let k=1;while(pick.length<3){if(!pick.includes(r+k))pick.push(r+k);k++}
+  return shuffle([r,...pick]);
+}
+
+// ---- sons ----
+let ac=null;
+function beep(f,d,type='sine',v=.12){
+  if(!sound)return;
+  try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();
+  o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);
+  o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}
+}
+
+// ---- tela inicial ----
+const LOCK='<svg class="lock" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10V8a6 6 0 1 1 12 0v2h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1zm2 0h8V8a4 4 0 1 0-8 0v2z"/></svg>';
+let scrollNext=true;
+function show(id){for(const s of['home','game','result','confirm'])$(s).hidden=s!==id;window.scrollTo(0,0)}
+function renderHome(){
+  if(!opUnlocked(op))op='add';
+  document.body.dataset.op=op;LEVELS=LV[op];
+  $('tabs').innerHTML=Object.entries(OPS).map(([k,v])=>{const ul=opUnlocked(k);
+    return `<button class="tab" data-op="${k}" aria-pressed="${k===op}" ${ul?'':'disabled'}>${ul?'':LOCK}<span class="s">${v.s}</span><span class="n">${v.n}</span></button>`}).join('');
+  const k=ORDER.indexOf(op),nx=ORDER[k+1];
+  $('opNote').hidden=!(nx&&!opUnlocked(nx));
+  if(nx)$('opNote').textContent=`Complete todos os níveis de ${OPS[op].n.toLowerCase()} para liberar ${OPS[nx].n.toLowerCase()}.`;
+  let done=0,nextI=-1;
+  const cards=LEVELS.map((L,i)=>{
+    const r=rec(op,i),ul=unlocked(op,i);if(r.pass)done++;
+    if(nextI<0&&ul&&!r.pass)nextI=i;
+    const st=starsOf(r.best);
+    const status=r.pass?`<span class="stars">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span> ${r.best}/50`:r.best?`Melhor: ${r.best}/50`:ul?'Jogar':'Bloqueado';
+    return `<button class="lv${r.pass?' done':''}${i===nextI?' next':''}" data-i="${i}" ${ul?'':'disabled'}>${ul?'':LOCK}<span class="num">Nível ${i+1}</span><span class="t">${L.t}</span><span class="st">${status}</span></button>`;
+  });
+  const digits=[...new Set(LEVELS.map(L=>L.d))];
+  $('levels').innerHTML=digits.map(d=>{
+    const idx=LEVELS.map((L,i)=>L.d===d?i:-1).filter(i=>i>=0);
+    const ok=idx.filter(i=>rec(op,i).pass).length;
+    return `<div class="grp"><h2>Dígito ${d} <small>${ok}/${idx.length}</small></h2><div class="grid">${idx.map(i=>cards[i]).join('')}</div></div>`;
+  }).join('');
+  const nb=$('levels').querySelector('.lv.next');
+  if(nb&&scrollNext){scrollNext=false;requestAnimationFrame(()=>nb.scrollIntoView({block:'center'}))}
+  $('progTxt').textContent=`${done} de ${LEVELS.length} níveis`;
+  $('progBar').style.width=(done/LEVELS.length*100)+'%';
+  $('free').checked=free;$('snd').checked=sound;
+}
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;op=b.dataset.op;save();scrollNext=true;renderHome()});
+$('levels').addEventListener('click',e=>{const b=e.target.closest('.lv');if(b&&!b.disabled)start(+b.dataset.i)});
+$('free').addEventListener('change',e=>{free=e.target.checked;save();renderHome()});
+$('snd').addEventListener('change',e=>{sound=e.target.checked;save()});
+$('resetBtn').addEventListener('click',()=>show('confirm'));
+$('cNo').addEventListener('click',()=>show('home'));
+$('cYes').addEventListener('click',()=>{data={};save();scrollNext=true;renderHome();show('home')});
+
+// ---- jogo ----
+let G=null,raf=0;
+function start(i){
+  const L=LEVELS[i];
+  G={i,q:buildRound(op,L.set),k:0,hits:0,wrong:[],t0:0,lock:true,over:false,timer:0};
+  $('gTitle').innerHTML=`${VERB[op]} — ${L.t}<small>Nível ${i+1} de ${LEVELS.length}</small>`;
+  $('qn').textContent='0';$('hits').textContent='0';$('clock').textContent='2:00';$('clock').classList.remove('low');
+  $('tbar').style.transform='scaleX(1)';
+  $('ans').innerHTML=[0,1,2,3].map(n=>`<button class="a" data-n="${n}" disabled><kbd>${n+1}</kbd>&nbsp;</button>`).join('');
+  show('game');
+  let c=3;
+  const cd=()=>{
+    if(!G||G.over)return;
+    if(c>0){$('qbox').innerHTML=`<div class="cd pop">${c}</div>`;beep(520,.12);c--;G.timer=setTimeout(cd,700)}
+    else{$('qbox').innerHTML='<div class="expr" id="expr"></div>';beep(880,.2);G.t0=performance.now();tick();ask()}
+  };
+  cd();
+}
+function tick(){
+  if(!G||G.over)return;
+  const left=Math.max(0,TIME-(performance.now()-G.t0)/1000);
+  const s=Math.ceil(left);
+  $('clock').textContent=`${s/60|0}:${String(s%60).padStart(2,'0')}`;
+  $('clock').classList.toggle('low',left<=15);
+  $('tbar').style.transform=`scaleX(${left/TIME})`;
+  if(left<=0){finish();return}
+  raf=requestAnimationFrame(tick);
+}
+function ask(){
+  const q=G.q[G.k];
+  $('expr').innerHTML=`${q.a} <span>${OPS[op].s}</span> ${q.b}`;
+  $('expr').classList.remove('pop');void $('expr').offsetWidth;$('expr').classList.add('pop');
+  [...$('ans').children].forEach((b,n)=>{b.className='a';b.disabled=false;b.innerHTML=`<kbd>${n+1}</kbd>${q.opts[n]}`});
+  $('qn').textContent=G.k+1;
+  G.lock=false;
+}
+function answer(n){
+  if(!G||G.lock||G.over)return;
+  G.lock=true;
+  const q=G.q[G.k],v=q.opts[n],btns=[...$('ans').children];
+  btns.forEach(b=>b.disabled=true);
+  let wait=220;
+  if(v===q.r){G.hits++;btns[n].classList.add('ok');beep(988,.09,'triangle')}
+  else{G.wrong.push({...q,v});btns[n].classList.add('bad');btns[q.opts.indexOf(q.r)].classList.add('ok');beep(180,.18,'square',.06);wait=650}
+  $('hits').textContent=G.hits;
+  G.k++;
+  G.timer=setTimeout(()=>{if(G.over)return;if(G.k>=TOTAL)finish();else ask()},wait);
+}
+$('ans').addEventListener('click',e=>{const b=e.target.closest('.a');if(b)answer(+b.dataset.n)});
+document.addEventListener('keydown',e=>{
+  if(!$('game').hidden){
+    if(e.key>='1'&&e.key<='4')answer(+e.key-1);
+    if(e.key==='Escape')quit();
+  }
+});
+function quit(){if(G){G.over=true;clearTimeout(G.timer)}cancelAnimationFrame(raf);G=null;scrollNext=true;renderHome();show('home')}
+$('quit').addEventListener('click',quit);
+
+function finish(){
+  if(!G||G.over)return;
+  G.over=true;clearTimeout(G.timer);cancelAnimationFrame(raf);
+  const used=Math.min(TIME,(performance.now()-G.t0)/1000);
+  const unanswered=TOTAL-G.k,pass=G.hits>=PASS,i=G.i;
+  const r=rec(op,i);
+  data[op+i]={best:Math.max(r.best,G.hits),pass:r.pass||pass};save();
+  const st=starsOf(G.hits);
+  $('medal').innerHTML=medal(pass,st);
+  $('score').innerHTML=`${G.hits}<small>/50</small>`;
+  const ts=`${used/60|0}:${String(Math.round(used%60)).padStart(2,'0')}`;
+  let m;
+  if(pass)m=i<LEVELS.length-1?`Parabéns! Você acertou ${Math.round(G.hits/TOTAL*100)}% em ${ts}. O nível ${i+2} foi liberado!`:`Incrível! Você completou o último nível de ${OPS[op].n.toLowerCase()}!`+
+      (ORDER[ORDER.indexOf(op)+1]&&opDone(op)?` Agora a ${OPS[ORDER[ORDER.indexOf(op)+1]].n.toLowerCase()} está liberada.`:'');
+  else if(unanswered>0)m=`O tempo acabou com ${unanswered} conta${unanswered>1?'s':''} sem resposta. Você precisa de 45 acertos — faltaram ${PASS-G.hits}. Tente de novo!`;
+  else m=`Você respondeu tudo em ${ts}, mas precisa de 45 acertos — faltaram ${PASS-G.hits}. Quase lá!`;
+  $('msg').textContent=m;
+  const hasNext=pass&&i<LEVELS.length-1;
+  $('rbtns').innerHTML=(hasNext?`<button class="btn main" data-a="next">Próximo nível</button>`:'')+
+    `<button class="btn${hasNext?'':' main'}" data-a="again">Jogar de novo</button><button class="btn" data-a="home">Níveis</button>`;
+  // erros agrupados
+  const seen=new Map();G.wrong.forEach(w=>seen.set(w.a+','+w.b,w));
+  $('errs').hidden=!seen.size;
+  $('errList').innerHTML=[...seen.values()].map(w=>`<li>${w.a} ${OPS[op].s} ${w.b} = <b>${w.r}</b> <s>${w.v}</s></li>`).join('');
+  beep(pass?660:300,.15);if(pass)setTimeout(()=>beep(990,.25),150);
+  G.result=i;
+  show('result');
+}
+$('rbtns').addEventListener('click',e=>{
+  const a=e.target.closest('.btn')?.dataset.a;if(!a)return;
+  const i=G?G.result:0;
+  if(a==='next')start(i+1);else if(a==='again')start(i);else{G=null;scrollNext=true;renderHome();show('home')}
+});
+function medal(pass,st){
+  const col=pass?'var(--op)':'var(--line)';
+  const star=(x,y,s,on)=>`<path transform="translate(${x} ${y}) scale(${s})" d="M0-10 2.9-3.1 10.5-3.1 4.3 1.4 6.6 8.7 0 4.2-6.6 8.7-4.3 1.4-10.5-3.1-2.9-3.1Z" fill="${on?'#f5b300':'none'}" stroke="#f5b300" stroke-width="1.6"/>`;
+  return `<circle cx="75" cy="72" r="54" fill="${col}"/><circle cx="75" cy="72" r="44" fill="var(--card)"/>`+
+    (pass?`<path d="M54 74l14 14 28-30" fill="none" stroke="var(--ok)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>`
+         :`<text x="75" y="88" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="46" fill="var(--soft)">↻</text>`)+
+    star(38,132,1.2,st>=1)+star(75,138,1.4,st>=2)+star(112,132,1.2,st>=3);
+}
+renderHome();
+}
+</script>
+</body>
+</html>
